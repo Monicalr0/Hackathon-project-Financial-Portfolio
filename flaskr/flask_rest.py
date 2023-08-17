@@ -11,6 +11,7 @@ db = mysql.connector.connect(
 cursor = db.cursor()
 api = Api(app)
 
+
 class TickersResource(Resource):
     # GET /tickers
     def get(self):
