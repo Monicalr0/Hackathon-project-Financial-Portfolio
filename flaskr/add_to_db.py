@@ -1,6 +1,7 @@
 import mysql.connector
 import logging  # this should allow all messages to be displayed
 import yfinance as yf
+import requests
 
 # todo remove this line for production code
 logging.basicConfig(level=logging.DEBUG)
@@ -13,7 +14,6 @@ class DatabaseEditor:
         __init__ Initializer for the DatabaseEditor class.
 
         Args:
-        ----
             password (str): Database password.
             database (str): Database name.
             host (str, optional): Database host. Defaults to "localhost".
@@ -58,33 +58,83 @@ class DatabaseEditor:
         tables = self.cursor.fetchall()
         if len(tables) == 0:
             logging.warning(f"No tables in database {self.db.database}.")
+            return None
         else:
             logging.debug(f"Tables in database {self.db.database}: {tables}")
         return tables
 
+    def get_tickers(self):
+        # get all tickers from the database
+        self.cursor.execute("SELECT ticker_id FROM tickers;")
+        tickers = self.cursor.fetchall()
+        return [t[0] for t in tickers]
+
+    def is_valid_ticker(self, ticker_id: str):
+        """
+        is_valid_ticker Check if a ticker is a valid Yahoo! Finance ticker.
+
+        Args:
+            ticker_id (str): Ticker to check.
+
+        Returns:
+            bool: True if the ticker is valid, False otherwise.
+        """
+        try:
+            ticker = yf.Ticker(ticker_id)
+            ticker.get_info()
+            logging.debug(f"{ticker_id} is a valid Yahoo! Finance ticker.")
+            return True
+        except requests.exceptions.HTTPError:
+            logging.warning(f"{ticker_id} is not a valid Yahoo! Finance ticker.")
+            return False
+
     def add_ticker(self, ticker_id: str):
         """
-        add_ticker Adds a ticker to the database if it doesn't already exist and is a valid Yahoo! Finance ticker.
+        add_ticker Adds a ticker to the tickers table if it doesn't already exist and is a valid Yahoo! Finance ticker.
 
         Args:
             ticker_id (str): Ticker to add to the database.
         """
         # check if the ticker is valid
-        if yf.Ticker(ticker_id).info == {}:
-            logging.warning(f"{ticker_id} is not a valid Yahoo! Finance ticker.")
-            return
+        if self.is_valid_ticker(ticker_id):
+            return 1  # fail
 
         try:
             self.cursor.execute(
-                f"INSERT INTO tickers (ticker_id) VALUES ('{ticker_id.upper()}');"
+                f"INSERT INTO tickers ticker_id VALUES '{ticker_id.upper()}';"
             )
         except mysql.connector.errors.IntegrityError:
             logging.warning(f"{ticker_id} already exists in the database.")
-            return
+            return 1  # fail
 
         # commit changes to the database
         self.db.commit()
         logging.info(f"Added {ticker_id} to the database.")
+        return 0  # success
+
+    def add_tickers(self, ticker_ids: list):
+        """
+        add_tickers Method to add multiple tickers to the database at once.
+
+        Args:
+            ticker_ids (list): A list of tickers to add to the database.
+        """
+        for ticker_id in ticker_ids:
+            self.add_ticker(ticker_id)
+        return 0  # success
+
+    def get_ticker_data(self, ticker_id: str):
+        """
+        get_ticker_data Returns all data for a given ticker in the tickersData table.
+
+        Args:
+            ticker_id (str): Ticker to get data for.
+        """
+        self.cursor.execute(
+            f"SELECT * FROM tickersData WHERE ticker_id='{ticker_id.upper()}';"
+        )
+        data = self.cursor.fetchall()
+        return data
 
     # todo: is str the right type for timestamp?
     def add_ticker_data(self, ticker_id: str, price: float, timestamp: str):
@@ -114,16 +164,10 @@ class DatabaseEditor:
 
 
 if __name__ == "__main__":
-    # use input to get host, user, password, and database
-    # password = input("Enter database password: ")
-    password = "guatemala"
-
-    db_editor = DatabaseEditor(
-        host="localhost", user="root", password=password, database="team11"
-    )
-
-    db_editor.show_tables()
-
-    db_editor.add_ticker("AAPL")
-    db_editor.add_ticker_data("AAPL", 100, "2021-04-01 00:00:00")
+    db_editor = DatabaseEditor(password="guatemala", database="team11")
+    db_editor.add_tickers(["AAPL", "TSLA", "MSFT"])
+    db_editor.is_valid_ticker("lpol")
+    print(db_editor.get_tickers())
+    db_editor.add_ticker_data("AAPL", 120.0, "2021-02-02")
+    print(db_editor.get_ticker_data("AAPL"))
     db_editor.close_editor()

@@ -1,0 +1,60 @@
+body,
+html {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* vh = viewport height */
+}
+
+/* main content */
+.main-content {
+    flex: 1; /* fill remaining vertical space */
+    padding: 1%;
+    background-color: gainsboro;
+}
+
+/* footer */
+#footer {
+    background-color: #333;
+    color: lightgrey;
+    padding: 10px;
+    text-align: center;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}
+
+/* color the navbar the same as the footer */
+.navbar {
+    color: lightgrey;
+    background-color: #333;
+}
+
+/* align the nav links to the right */
+.navbar-nav {
+    margin-left: auto;
+}
+
+/* color navbar links */
+.navbar-nav li a {
+    color: lightgrey;
+}
+
+/* color navbar brand */
+.navbar-brand {
+    color: whitesmoke;
+}
+
+/* color navbar link hover */
+.navbar-nav li a:hover {
+    color: white;
+}
+
+/* color navbar brand hover */
+.navbar-brand:hover {
+    color: white;
+}

@@ -1,11 +1,11 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 from flask_restful import Api, Resource, reqparse
 import mysql.connector
 
 app = Flask(__name__)
 # TODO: update DB info
 db = mysql.connector.connect(
-    host="localhost", user="root", password="c0nygre", database="conygre"
+    host="localhost", user="root", password="guatemala", database="team11"
 )
 
 cursor = db.cursor()
@@ -61,5 +61,20 @@ class TickerDataResource(Resource):
         return good_response if cursor.rowcount else not_found
 
 
+# add resource to api
+api.add_resource(TickersResource, "/tickers")
+api.add_resource(TickerDataResource, "/tickers/<int:t_id>")
+
+
+@app.route("/")
+def home():
+    return render_template("home.html")
+
+
+@app.route("/page1")
+def page1():
+    return render_template("page1.html")
+
+
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)
