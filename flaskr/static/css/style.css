@@ -36,35 +36,30 @@ body {
     font-size: large;
 }
 
-/* Navbar Navigation */
+/* ensure adequate spacing to the left of the nav links */
 .navbar-nav {
     margin-left: auto;
 }
 
-/* Navbar Links */
+/* config navbar links */
 .navbar-nav li a:hover,
 .navbar-brand:hover {
     color: white;
 }
 
-/* Footer */
-#footer {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    padding: 10px;
-    background-color: #333;
-    color: lightgrey;
-    text-align: center;
+/* change the color of the navbar toggler */
+.navbar-toggler-icon {
+    background-color: lightgrey;
 }
 
+/* styling for the div with the sidebar and main-content */
 #basebody {
     display: flex;
     flex: 1;
 }
 
 .sidebar {
-    width: 20vw;
+    width: 18vw;
     padding: 25px;
     background-color: #A6BBAA;
     color: #333;
@@ -76,10 +71,23 @@ body {
 }
 
 .sidebar li {
+    /* spacing beneath each list item */
     margin-bottom: 15px;
 }
 
 .sidebar a {
     color: #333;
     text-decoration: none;
+}
+
+/* Footer */
+#footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    padding: 10px;
+    background-color: #333;
+    color: lightgrey;
+    text-align: center;
+    font-size: small;
 }
