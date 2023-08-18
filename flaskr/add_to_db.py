@@ -2,6 +2,11 @@ import mysql.connector
 import logging  # this should allow all messages to be displayed
 import yfinance as yf
 import requests
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+DB_PASSWORD = os.getenv("DB_PASSWORD")
 
 # todo remove this line for production code
 logging.basicConfig(level=logging.DEBUG)
@@ -164,7 +169,7 @@ class DatabaseEditor:
 
 
 if __name__ == "__main__":
-    db_editor = DatabaseEditor(password="guatemala", database="team11")
+    db_editor = DatabaseEditor(password=DB_PASSWORD, database="team11")
     db_editor.add_tickers(["AAPL", "TSLA", "MSFT"])
     db_editor.is_valid_ticker("lpol")
     print(db_editor.get_tickers())

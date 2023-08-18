@@ -1,11 +1,16 @@
 from flask import Flask, jsonify, request, render_template
 from flask_restful import Api, Resource, reqparse
 import mysql.connector
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+DB_PASSWORD = os.getenv("DB_PASSWORD")
 
 app = Flask(__name__)
 # TODO: update DB info
 db = mysql.connector.connect(
-    host="localhost", user="root", password="guatemala", database="team11"
+    host="localhost", user="root", password=DB_PASSWORD, database="team11"
 )
 
 cursor = db.cursor()
