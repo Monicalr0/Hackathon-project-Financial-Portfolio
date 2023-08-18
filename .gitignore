@@ -310,3 +310,4 @@ $RECYCLE.BIN/
 .flaskenv*
 !.env.project
 !.env.vault
+!.env-template
