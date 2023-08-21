@@ -19,13 +19,13 @@ CREATE TABLE portfolio (
     ticker_id varchar(10),
     num_share int,
     buy_in_price decimal,
-    total_return decimal
+    total_return decimal,
     FOREIGN KEY(ticker_id) REFERENCES tickers(ticker_id)
 );
 
 CREATE TABLE ticker_returns (
     ticker_id varchar(10),
     mean_return decimal,
-    date timestamp
+    date timestamp,
     FOREIGN KEY(ticker_id) REFERENCES tickers(ticker_id)
 );
