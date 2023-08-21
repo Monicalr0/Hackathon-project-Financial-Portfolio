@@ -60,7 +60,9 @@ completed, and understood, it becomes easier to provide a solution for solving t
 ## ⛓️ Dependencies / Limitations <a name = "limitations"></a>
 <!-- TODO: updated to flow chart if needed? -->
 Dependencies
-  1. Building the MVP: we start by retriving and parsing data using Yahoo API, and building the simplest backend using Flask, MySQL to diplay the list of tickers and their daily change in price over 8 months period in 2023. 
+  1. Building the MVP: we start by retriving and parsing data using Yahoo API, designing the database Schema and building the simplest backend using Flask, MySQL to diplay the list of tickers and their daily change in price over 8 months period in 2023. 
+  The Schema of the database are shown by image below 
+  ![](database_schema.jpg)
 
 Limitation
 
