@@ -38,12 +38,12 @@ returns_mean = returns.mean() * 143
 print(returns.cov()*143)
 print(returns.corr())
 
-client = {'total_inv': 300000,
-          'spy_shares':15, 'app_shares':30, 'bonds_shares': 60}
-totalshare = client[]
-#asset_price = 
-spy_asset = client['spy_shares']*port['SPY'][-1]
-#print(returns_mean)
+# client = {'total_inv': 300000,
+#           'spy_shares':15, 'app_shares':30, 'bonds_shares': 60}
+# totalshare = client[]
+# #asset_price = 
+# spy_asset = client['spy_shares']*port['SPY'][-1]
+# #print(returns_mean)
 
 #client_cash = pd.DataFrame()
 
