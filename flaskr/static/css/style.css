@@ -47,11 +47,6 @@ body {
     color: white;
 }
 
-/* change the color of the navbar toggler */
-.navbar-toggler-icon {
-    background-color: lightgrey;
-}
-
 /* styling for the div with the sidebar and main-content */
 #basebody {
     display: flex;
@@ -61,7 +56,7 @@ body {
 .sidebar {
     width: 18vw;
     padding: 25px;
-    background-color: #A6BBAA;
+    background-color: #ced4d6;
     color: #333;
 }
 
@@ -71,7 +66,6 @@ body {
 }
 
 .sidebar li {
-    /* spacing beneath each list item */
     margin-bottom: 15px;
 }
 
@@ -87,7 +81,7 @@ body {
     width: 100%;
     padding: 10px;
     background-color: #333;
+    font-size: small;
     color: lightgrey;
     text-align: center;
-    font-size: small;
 }
