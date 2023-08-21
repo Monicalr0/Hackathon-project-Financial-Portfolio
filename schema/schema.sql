@@ -2,28 +2,23 @@ CREATE DATABASE team11;
 
 USE team11;
 
-CREATE TABLE tickers (
-    ticker_id varchar(10) PRIMARY KEY
+CREATE TABLE portfolio (
+    ticker_id varchar(10) PRIMARY KEY,
+    num_shares int,
+    buy_in_price decimal,
+    total_return decimal
 );
 
-CREATE TABLE tickersData (
+CREATE TABLE ticker_data (
     ticker_id varchar(10),
     price decimal,
     date timestamp,
-    FOREIGN KEY(ticker_id) REFERENCES tickers(ticker_id)
+    FOREIGN KEY(ticker_id) REFERENCES portfolio(ticker_id)
 );
 
-CREATE TABLE portfolio (
+CREATE TABLE ticker_return (
     ticker_id varchar(10),
-    num_share int,
-    buy_in_price decimal,
-    totalReturn decimal
-    FOREIGN KEY(ticker_id) REFERENCES tickers(ticker_id)
-);
-
-CREATE TABLE tickersReturn (
-    ticker_id varchar(10),
-    meanReturn decimal,
-    date timestamp
-    FOREIGN KEY(ticker_id) REFERENCES tickers(ticker_id)
+    mean_return decimal,
+    date timestamp,
+    FOREIGN KEY(ticker_id) REFERENCES portfolio(ticker_id)
 );
