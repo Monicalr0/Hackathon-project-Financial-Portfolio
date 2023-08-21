@@ -76,9 +76,9 @@ def home():
     return render_template("home.html")
 
 
-@app.route("/page1")
+@app.route("/transactions")
 def page1():
-    return render_template("page1.html")
+    return render_template("transactions.html")
 
 
 if __name__ == "__main__":

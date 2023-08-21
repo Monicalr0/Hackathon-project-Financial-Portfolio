@@ -2,37 +2,56 @@ CREATE DATABASE team11;
 
 USE team11;
 
--- tickers (not necessarily ones the user has) 
+-- Tickers (not necessarily ones the user has)
 CREATE TABLE tickers (
-    ticker_id varchar(10) PRIMARY KEY
+    ticker_id VARCHAR(10) PRIMARY KEY
 );
 
+-- data for the portfolio tickers 
 CREATE TABLE ticker_data (
-    ticker_id varchar(10),
-    price decimal,
-    date timestamp,
+    ticker_id VARCHAR(10),
+    price DECIMAL,
+    open DECIMAL,
+    low DECIMAL,
+    close DECIMAL,
+    high DECIMAL,
+    volume INT,
+    date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(ticker_id) REFERENCES tickers(ticker_id)
 );
 
--- tickers the user has
+-- Tickers the user has
 CREATE TABLE portfolio (
-    ticker_id varchar(10),
-    total_shares int,
-    total_return decimal,
+    ticker_id VARCHAR(10),
+    total_shares INT,
+    total_return DECIMAL,
     FOREIGN KEY(ticker_id) REFERENCES tickers(ticker_id)
 );
 
-CREATE transactions (
-    ticker_id varchar(10),
-    num_shares int,
-    buy_in_price decimal,
-    date timestamp,
+CREATE TABLE transactions (
+    transaction_num INT AUTO_INCREMENT PRIMARY KEY,
+    ticker_id VARCHAR(10),
+    num_shares INT,
+    price DECIMAL, -- price per share (negative for sell)
+    transaction_type VARCHAR(10), -- buy or sell
+    date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(ticker_id) REFERENCES tickers(ticker_id)
 );
 
 CREATE TABLE ticker_returns (
-    ticker_id varchar(10),
-    mean_return decimal,
-    date timestamp,
+    ticker_id VARCHAR(10),
+    mean_return DECIMAL,
+    date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(ticker_id) REFERENCES tickers(ticker_id)
+);
+
+--  ? something like this if we decide to have accounts/users 
+CREATE TABLE accounts (
+    account_num INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(20),
+    password VARCHAR(20),
+    email VARCHAR(50),
+    first_name VARCHAR(20),
+    last_name VARCHAR(20),
+    balance DECIMAL
 );
