@@ -38,10 +38,20 @@
         </div>
     </nav>
 
-    <div class="main-content">
-        {% block main %}
-        <!-- Your main content goes here -->
-        {% endblock %}
+    <div id="basebody">
+        <div class="sidebar">
+            <ul>
+                <li>Available cash: $$$</li>
+                <li>other financial stuff</li>
+                <li>other financial stuff</li>
+            </ul>
+        </div>
+    
+        <div class="main-content">
+            {% block main %}
+            <!-- main content will be here -->
+            {% endblock %}
+        </div>
     </div>
 
     <div id="footer">
