@@ -17,9 +17,16 @@ CREATE TABLE ticker_data (
 -- tickers the user has
 CREATE TABLE portfolio (
     ticker_id varchar(10),
-    num_share int,
-    buy_in_price decimal,
+    total_shares int,
     total_return decimal,
+    FOREIGN KEY(ticker_id) REFERENCES tickers(ticker_id)
+);
+
+CREATE transactions (
+    ticker_id varchar(10),
+    num_shares int,
+    buy_in_price decimal,
+    date timestamp,
     FOREIGN KEY(ticker_id) REFERENCES tickers(ticker_id)
 );
 
