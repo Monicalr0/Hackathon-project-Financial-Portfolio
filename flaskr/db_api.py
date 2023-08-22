@@ -32,6 +32,13 @@ class DatabaseEditor:
         self.db, self.cursor = self.connect()
 
     def connect(self):
+        """
+        connect Connects to the database.
+
+        Returns:
+            mysql.connector.connection.MySQLConnection: Database connection.
+            mysql.connector.cursor.MySQLCursor: Database cursor.
+        """        
         try:
             db = mysql.connector.connect(
                 host=self.host,
@@ -62,6 +69,9 @@ class DatabaseEditor:
     def get_tables(self):
         """
         get_tables Returns all tables in the database.
+
+        Returns:
+            list: List of tables in the database.
         """
 
         # get all tables in the database
@@ -133,6 +143,12 @@ class DatabaseEditor:
 
     # todo: update_total_return()
     def update_total_return(self, ticker_id: str):
+        """
+        update_total_return Method to update the total return of a ticker in the portfolio.
+
+        Args:
+            ticker_id (str): Ticker to update the total return of.
+        """        
         # calc the total return of a ticker from start to today
         # Total Return = (Ending Value - Beginning Value) / Beginning Value
 
@@ -367,6 +383,12 @@ class DatabaseEditor:
         return data
 
     def get_transaction_history(self):
+        """
+        get_transaction_history Returns all transactions in the transactions table.
+
+        Returns:
+            dict: A dict of all transactions in the transactions table.
+        """        
         self.cursor.execute("SELECT * FROM transactions;")
         data = self.cursor.fetchall()
 
@@ -417,6 +439,12 @@ class DatabaseEditor:
         return asset_type
 
     def display_portfolio(self):
+        """
+        display_portfolio Returns all data for the user portfolio.
+
+        Returns:
+            dict: A sorted dict of all data for the user portfolio.
+        """        
         self.cursor.execute("SELECT * FROM portfolio;")
         portfolio = self.cursor.fetchall()
 
@@ -452,6 +480,12 @@ class DatabaseEditor:
         return sorted_portfolio_data
 
     def ticker_details(self, ticker_id: str):
+        """
+        ticker_details Returns all data for a given ticker in the portfolio.
+
+        Args:
+            ticker_id (str): Ticker to get data for.
+        """        
         self.cursor.execute(f"SELECT * FROM portfolio WHERE ticker_id='{ticker_id}';")
 
         ticker = self.cursor.fetchone()
@@ -463,6 +497,12 @@ class DatabaseEditor:
         # todo complete this function for stock details button
 
     def asset_type_breakdown(self):
+        """
+        asset_type_breakdown Returns the asset type breakdown of the user portfolio.
+
+        Returns:
+            dict: A dict of the asset type breakdown of the user portfolio.
+        """        
         # get the asset types in the portfolio
         self.cursor.execute("SELECT total_shares, asset_type FROM portfolio;")
         data = self.cursor.fetchall()
