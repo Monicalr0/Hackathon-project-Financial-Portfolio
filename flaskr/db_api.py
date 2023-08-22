@@ -29,6 +29,7 @@ class DatabaseEditor:
         self.host = host
         self.user = user
         self.password = password
+        self.db, self.cursor = self.connect()
 
     def connect(self):
         try:
@@ -40,16 +41,18 @@ class DatabaseEditor:
             )
             if db.is_connected():
                 logging.info(f"Successfully connected to {self.db_name} database.")
+
+            return db, db.cursor()
         except mysql.connector.errors.ProgrammingError:
             logging.error(
                 f"Error connecting to the {self.db_name} database. Check your credentials."
             )
-            exit(1)
-        return db, db.cursor()
+            
 
-    def disconnect(self, db, cursor):
+            
+    def disconnect(self):
         """
-        disconnect Closes the cursor and database connection.
+        disconnect Closes the self.cursor and database connection.
         """
         try:
             self.cursor.close()
@@ -57,23 +60,23 @@ class DatabaseEditor:
             logging.info(f"Database {self.db_name} editor closed.")
         except mysql.connector.errors.InterfaceError:
             logging.error(f"Error closing database {self.db_name} editor.")
-            exit(1)
+            
 
     def get_tables(self):
         """
         get_tables Returns all tables in the database.
         """
-        db, cursor = self.connect()  # connect to the database
+        
         # get all tables in the database
-        cursor.execute("SHOW TABLES;")
-        tables = cursor.fetchall()
+        self.cursor.execute("SHOW TABLES;")
+        tables = self.cursor.fetchall()
         # check if there are any tables in the database
         if len(tables) == 0:
             logging.warning(f"No tables in database {self.db_name}.")
             return None
         else:
             logging.debug(f"Tables in database {self.db_name}: {tables}")
-        self.disconnect(db, cursor)  # disconnect from the database
+        
         return tables
 
     def get_tickers(self):
@@ -84,16 +87,16 @@ class DatabaseEditor:
             list: List of tickers in the database.
         """
         # get all tickers from the database
-        db, cursor = self.connect()  # connect to the database
+        
         try:
-            cursor.execute("SELECT ticker_id FROM portfolio;")
-            tickers = cursor.fetchall()
-            self.disconnect(db, cursor)  # disconnect from the database
+            self.cursor.execute("SELECT ticker_id FROM portfolio;")
+            tickers = self.cursor.fetchall()
+            
             logging.debug(f"Tickers in database {self.db_name}: {tickers}")
             return [t[0] for t in tickers]
         except mysql.connector.errors.ProgrammingError:
             logging.warning(f"No tickers in database {self.db_name}.")
-            self.disconnect(db, cursor)  # disconnect from the database
+            
             return None
 
     def is_valid_ticker(self, ticker_id: str):
@@ -135,24 +138,29 @@ class DatabaseEditor:
     def calc_total_return(self, ticker_id: str):
         # calc the total return of a ticker from start to today
         # Total Return = (Ending Value - Beginning Value) / Beginning Value
-        db, cursor = self.connect()  # connect to the database
+        
         curr_price = self.get_current_price(ticker_id)
-        cursor.excute("SELECT num_shares, price, transaction_type FROM transactions WHERE ticker_id = %s", (ticker_id))
-        data = cursor.fetchall()
+        self.cursor.excute(
+            "SELECT num_shares, price, transaction_type FROM transactions WHERE ticker_id = %s",
+            (ticker_id),
+        )
+        data = self.cursor.fetchall()
 
         total_return = 0
 
         # loop through all transactions
         for row in data:
-            if row[2] == "buy": # skip sell transactions
-                num_shares = row[0] # number of shares per transaction
-                price = row[1] # buy in price at purchase time 
+            if row[2] == "buy":  # skip sell transactions
+                num_shares = row[0]  # number of shares per transaction
+                price = row[1]  # buy in price at purchase time
                 total_return += num_shares * ((curr_price - price) / price)
 
-        cursor.execute(f"UPDATE portfolio SET total_return = {total_return} WHERE ticker_id = {ticker_id}")
-        db.commit()
+        self.cursor.execute(
+            f"UPDATE portfolio SET total_return = {total_return} WHERE ticker_id = {ticker_id}"
+        )
+        self.db.commit()
+
         
-        self.disconnect(db, cursor)  # disconnect from the database
 
     def buy_ticker(self, ticker_id: str, num_shares: int):
         """
@@ -162,16 +170,17 @@ class DatabaseEditor:
             ticker_id (str): Ticker symbol to buy.
             num_shares (int): Number of shares to buy.
         """
-        db, cursor = self.connect()  # connect to the database
+        num_shares = int(num_shares)
 
         # get the current price of the ticker
         buy_in_price = self.get_current_price(ticker_id)
 
         # check if the ticker is valid
         if not self.is_valid_ticker(ticker_id):
+            msg = f"{ticker_id} is not a valid Yahoo! Finance ticker."
             logging.warning(f"{ticker_id} is not a valid Yahoo! Finance ticker.")
-            self.disconnect(db, cursor)  # disconnect from the database
-            return  # fail
+            
+            return msg # fail
 
         elif ticker_id in self.get_tickers():
             logging.info(
@@ -179,17 +188,19 @@ class DatabaseEditor:
             )
 
             # get the current shares for the ticker in the portfolio
-            cursor.execute(
+            self.cursor.execute(
                 f"SELECT total_shares FROM portfolio WHERE ticker_id='{ticker_id}';"
             )
-            shares = cursor.fetchone()[0]
+            shares = self.cursor.fetchone()[0]
+            # convert from str to float
+            shares = float(shares)
             shares += num_shares
 
             # update the shares in the portfolio
-            cursor.execute(
+            self.cursor.execute(
                 f"UPDATE portfolio SET total_shares={shares + num_shares} WHERE ticker_id='{ticker_id}';"
             )
-            db.commit()
+            self.db.commit()
             logging.info(f"Added {num_shares} shares of {ticker_id} to the database.")
 
         else:
@@ -197,28 +208,24 @@ class DatabaseEditor:
                 f"{ticker_id} does not exist in the database, adding to portfolio."
             )
 
+            # add to tickers
+            self.add_ticker(ticker_id)
+
             # insert the ticker into the portfolio
-            # ? @kara, is total  when you first buy a stock (assuming you dnot already hold shares of that stock)?
-            cursor.execute(
+            self.cursor.execute(
                 f"INSERT INTO portfolio (ticker_id, total_shares, total_return) VALUES ('{ticker_id}', {num_shares}, 0);"
             )
-            db.commit()
+            self.db.commit()
             logging.info(f"Added {ticker_id} to user portfolio.")
 
         # add purchase to transaction history
-        cursor.execute(
+        self.cursor.execute(
             f"INSERT INTO transactions (ticker_id, num_shares, price, transaction_type) VALUES ('{ticker_id}', {num_shares}, {buy_in_price}, 'buy');"
         )
-        db.commit()
+        self.db.commit()
         logging.info(f"Added purchase {ticker_id} to transaction history.")
 
-        # add to tickers
-        self.add_ticker(ticker_id)
-
         # todo update ticker_data table
-
-        # disconnect from the database
-        self.disconnect(db, cursor)
 
     def sell_ticker(self, ticker_id: str, num_shares: int):
         """
@@ -228,18 +235,17 @@ class DatabaseEditor:
             ticker_id (str): Ticker symbol to sell.
             num_shares (int): Number of shares to sell.
         """
-        db, cursor = self.connect()
         sale_price = self.get_current_price(ticker_id)
+        num_shares = int(num_shares)
 
         if not self.is_valid_ticker(ticker_id):
             logging.warning(f"{ticker_id} is not a valid Yahoo! Finance ticker.")
-            self.disconnect(db, cursor)  # disconnect from the database
+            
             return  # fail
         elif ticker_id not in self.get_tickers():
             logging.warning(
                 f"{ticker_id} is not in the user portfolio, there are no shares to sell."
             )
-            self.disconnect(db, cursor)
             return  # fail
         else:
             logging.info(
@@ -247,42 +253,42 @@ class DatabaseEditor:
             )
 
             # get the current shares for the ticker in the portfolio
-            cursor.execute(
+            self.cursor.execute(
                 f"SELECT total_shares FROM portfolio WHERE ticker_id='{ticker_id}';"
             )
-            shares = cursor.fetchone()[0]
+            shares = self.cursor.fetchone()[0]
+            # convert shares from str to float 
+            shares = float(shares)
 
             # check if the user is trying to sell more shares than they own
+            print(type(num_shares), type(shares))
             if num_shares > shares:
                 logging.warning(
                     f"Cannot sell {num_shares} shares of {ticker_id}, only {shares} shares are owned. Selling all ({shares}) shares."
                 )
-                self.disconnect(db, cursor)
 
             # calculate the number of shares to sell
             to_sell = (shares - num_shares) if num_shares < shares else shares
 
             # update the shares in the portfolio
-            cursor.execute(
+            self.cursor.execute(
                 f"UPDATE portfolio SET total_shares={to_sell} WHERE ticker_id='{ticker_id}';"
             )
-            db.commit()
+            self.db.commit()
             logging.info(f"Sold {to_sell} shares of {ticker_id} for {sale_price} each.")
 
             # add sale to transaction history
-            cursor.execute(
+            self.cursor.execute(
                 f"INSERT INTO transactions (ticker_id, num_shares, price, transaction_type) VALUES ('{ticker_id}', {to_sell}, {-sale_price}, 'sell');"
             )
-            db.commit()
+            self.db.commit()
 
-            # disconnect from the database
-            self.disconnect(db, cursor)
 
     def refresh_db(self):
         """
         refresh_db Method to refresh the database with the latest ticker data.
-        """        
-        db, cursor = self.connect()  # connect to the database
+        """
+        
 
         # get all tickers from the database (ones in the portfolio)
         tickers = self.get_tickers()
@@ -297,19 +303,16 @@ class DatabaseEditor:
             volume = data["Volume"][0]
 
             # add to the database
-            cursor.execute(
+            self.cursor.execute(
                 f"INSERT INTO ticker_data (ticker_id, open, close, high, low, volume) VALUES ('{ticker}', {open_price}, {close_price}, {high_price}, {low_price}, {volume});"
             )
-            db.commit()
+            self.db.commit()
 
         # refresh the portfolio
-        # todo: what to do about nexted connections? to fix 
+        # todo: what to do about nexted connections? to fix
         for ticker in tickers:
             # update the total return for each ticker in the portfolio
             self.calc_total_return(ticker)
-
-        # disconnect from the database
-        self.disconnect(db, cursor)
 
     def add_ticker(self, ticker_id: str):
         """
@@ -318,20 +321,19 @@ class DatabaseEditor:
         Args:
             ticker_id (str): Ticker to add to the database.
         """
-        db, cursor = self.connect()  # connect to the database
+        
         # check if the ticker is valid
-        if self.is_valid_ticker(ticker_id):
+        if not self.is_valid_ticker(ticker_id):
             return  # fail
-
+        
         try:
-            cursor.execute(
-                f"INSERT INTO tickers ticker_id VALUES '{ticker_id.upper()}';"
-            )
-            db.commit()
-            self.disconnect(db, cursor)  # disconnect from the database
+            self.cursor.execute(f"INSERT INTO tickers (ticker_id) VALUES ('{ticker_id}');")
+            print('HERE')
+            logging.info(f"Added {ticker_id} to the tickers table.")
+            self.db.commit()
+            
         except mysql.connector.errors.IntegrityError:
             logging.warning(f"{ticker_id} already exists in the database.")
-            self.disconnect(db, cursor)  # disconnect from the database
             return  # fail
 
         # commit changes to the database
@@ -354,12 +356,9 @@ class DatabaseEditor:
         Args:
             ticker_id (str): Ticker to get data for.
         """
-        db, cursor = self.connect()  # connect to the database
-        cursor.execute(
-            f"SELECT * FROM ticker_data WHERE ticker_id='{ticker_id.upper()}';"
-        )
-        data = cursor.fetchall()
-        self.disconnect(db, cursor)  # disconnect from the database
+        self.cursor.execute(f"SELECT * FROM ticker_data WHERE ticker_id='{ticker_id}';")
+        data = self.cursor.fetchall()
+        
         return data
 
 

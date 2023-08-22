@@ -3,18 +3,19 @@ from flask_restful import Api, Resource, reqparse
 import mysql.connector
 import os
 from dotenv import load_dotenv
+from db_api import DatabaseEditor
 
 load_dotenv()
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 
 app = Flask(__name__)
-# TODO: update DB info
+
+# cursor = db.cursor()
+api = Api(app)
+
 db = mysql.connector.connect(
     host="localhost", user="root", password=DB_PASSWORD, database="team11"
 )
-
-cursor = db.cursor()
-api = Api(app)
 
 
 class TickersResource(Resource):
@@ -77,8 +78,29 @@ def home():
 
 
 @app.route("/transactions")
-def page1():
+def transactions():
     return render_template("transactions.html")
+
+@app.route("/buy_sell", methods=["POST"])
+def execute_buysell():
+    # get form data
+    ticker_id = request.form["ticker_id"]
+    num_shares = request.form["num_shares"]
+    transaction_type = request.form["transaction_type"]
+
+    
+
+    db_editor = DatabaseEditor(
+        host="localhost", user="root", password=DB_PASSWORD, database="team11"
+    )
+
+    if transaction_type == "buy":
+        db_editor.buy_ticker(ticker_id, num_shares)
+    else:
+        db_editor.sell_ticker(ticker_id, num_shares)
+
+    db_editor.disconnect()
+    return render_template("success.html")
 
 
 if __name__ == "__main__":
