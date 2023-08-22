@@ -3,11 +3,13 @@
 {% block main %}
 <div class="container">
     <h2>Home</h2>
-    <br>
+    <p>This page breaks down the current state of your investment portfolio. If you want to make a new transaction, please visit the <a href="{{ url_for('transactions') }}">Transactions</a> page. For more details on how the portfolio is organized, please see the <a href="{{ url_for('about') }}">About</a> page.</p>
+
 
     <body>
         <!-- table to display the current portfolio tickers for the user -->
         <h4>Portfolio Assets</h4>
+        <p>Below is a table of all the current assets in your portfolio. To refresh, please reload the page.</p>
         <table class="table">
             <thead>
                 <tr>
@@ -15,6 +17,7 @@
                     <th>Short Name</th>
                     <th>Shares</th>
                     <th>Total Return (All Time)</th>
+                    <th>Net Gain/Loss</th>
                     <th>Market Value</th>
                     <th>52-week High</th>
                     <th>52-week Low</th>
@@ -24,10 +27,11 @@
             <tbody>
                 {% for ticker_data in portfolio_data %}
                 <tr>
-                    <td>{{ ticker_data.ticker }}</td>
+                    <td><a href="{{ url_for('detail') }}/id={{ticker_data.ticker_id}}">{{ ticker_data.ticker_id }}</a></td>
                     <td>{{ ticker_data.name }}</td>
                     <td>{{ ticker_data.num_shares }}</td>
                     <td>{{ ticker_data.total_return }}</td>
+                    <td>{{ ticker_data.net_gainloss }}</td>
                     <td>{{ ticker_data.curr_price }}</td>
                     <td>{{ ticker_data.high_52 }}</td>
                     <td>{{ ticker_data.low_52 }}</td>
@@ -82,22 +86,25 @@
         -->
 
         <h4>Asset Type Breakdown</h4>
+        <p>The asset type breakdown is calculated relative to the number of shares for each asset type, rather than the ticker.</p>
         <div class="container">
             <div class="chart-container">
                 <canvas id="assetTypeChart"></canvas>
             </div>
         </div>
-        
+
+        <!-- <h4>Gain/Loss</h4> -->
+
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 var ctx = document.getElementById('assetTypeChart').getContext('2d');
-        
+
                 var assetTypeData = {
                     {% for asset_type, percentage in asset_type_data.items() %}
-                    "{{ asset_type }}": {{ percentage }},
+                        "{{ asset_type }}": {{ percentage }},
                     {% endfor %}
                 };
-        
+
                 var data = {
                     labels: Object.keys(assetTypeData),
                     datasets: [{
@@ -105,7 +112,7 @@
                         backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56']
                     }]
                 };
-        
+
                 // Create the pie chart
                 var myPieChart = new Chart(ctx, {
                     type: 'pie',

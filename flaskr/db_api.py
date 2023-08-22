@@ -1,10 +1,12 @@
-import mysql.connector
+import json
 import logging  # this should allow all messages to be displayed
-import yfinance as yf
-import requests
 import os
-from dotenv import load_dotenv
 from datetime import datetime
+
+import mysql.connector
+import requests
+import yfinance as yf
+from dotenv import load_dotenv
 
 load_dotenv()
 DB_PASSWORD = os.getenv("DB_PASSWORD")
@@ -32,6 +34,13 @@ class DatabaseEditor:
         self.db, self.cursor = self.connect()
 
     def connect(self):
+        """
+        connect Connects to the database.
+
+        Returns:
+            mysql.connector.connection.MySQLConnection: Database connection.
+            mysql.connector.cursor.MySQLCursor: Database cursor.
+        """
         try:
             db = mysql.connector.connect(
                 host=self.host,
@@ -62,8 +71,10 @@ class DatabaseEditor:
     def get_tables(self):
         """
         get_tables Returns all tables in the database.
-        """
 
+        Returns:
+            list: List of tables in the database.
+        """
         # get all tables in the database
         self.cursor.execute("SHOW TABLES;")
         tables = self.cursor.fetchall()
@@ -75,6 +86,28 @@ class DatabaseEditor:
             logging.debug(f"Tables in database {self.db_name}: {tables}")
 
         return tables
+
+    def get_ticker(self, ticker_id):
+        """
+        get_ticker Get a ticker from the database (table: portfolio).
+
+        Args:
+            ticker_id (str): Symbol of the ticker to get.
+
+        Returns:
+            str: Ticker symbol.
+        """
+        try:
+            self.cursor.execute(
+                f"SELECT * FROM portfolio WHERE ticker_id = '{ticker_id}';"
+            )
+            ticker = self.cursor.fetchone()[0]
+
+            logging.debug(f"Found ticker {ticker} in database {self.db_name}.")
+            return json.dumps(ticker, indent=4, sort_keys=True, default=str)
+        except mysql.connector.errors.ProgrammingError:
+            logging.warning(f"No tickers in database {self.db_name}.")
+            return None
 
     def get_tickers(self):
         """
@@ -112,31 +145,52 @@ class DatabaseEditor:
             logging.debug(f"{ticker_id.upper()} is a valid Yahoo! Finance ticker.")
             return True
         except requests.exceptions.HTTPError:
-            logging.warning(f"{ticker_id.upper()} is not a valid Yahoo! Finance ticker.")
+            logging.warning(
+                f"{ticker_id.upper()} is not a valid Yahoo! Finance ticker."
+            )
             return False
 
-    def get_current_price(self, ticker_id: str):
+    def get_market_value(self, ticker_id: str, timestamp: datetime = None):
         """
-        get_current_price Get the current price of a ticker.
+        get_market_value Get the market value of a ticker at a specified timestamp, default to now.
 
         Args:
-            ticker_id (str): Ticker to get the current price of.
+            ticker_id (str): Ticker to get the market value of.
+            timestamp (datetime, optional): Timestamp to get the market value at. Defaults to None.
 
         Returns:
-            float: Current price of the ticker.
+            float: Market value of the ticker at the specified timestamp.
         """
         if self.is_valid_ticker(ticker_id):
             ticker = yf.Ticker(ticker_id)
-            current_price = ticker.history(period="1d")["Close"][0]
-            return current_price
+
+            if timestamp is None:
+                timestamp = datetime.now()
+            historical_data = ticker.history(start=timestamp, end=timestamp)
+
+            if not historical_data.empty:
+                try:
+                    market_value = historical_data["Close"][0]
+                    return market_value
+                except:
+                    logging.warning(
+                        f"Unable to get market value of {ticker_id.upper()} at {timestamp}."
+                    )
+                    return None
         return None
 
     # todo: update_total_return()
     def update_total_return(self, ticker_id: str):
+        """
+        update_total_return Method to update the total return of a ticker in the portfolio.
+
+        Args:
+            ticker_id (str): Ticker to update the total return of.
+        """
         # calc the total return of a ticker from start to today
         # Total Return = (Ending Value - Beginning Value) / Beginning Value
 
-        curr_price = self.get_current_price(ticker_id)
+        curr_price = self.get_market_value(ticker_id)
         self.cursor.execute(
             f"SELECT num_shares, price, transaction_type FROM transactions WHERE ticker_id = '{ticker_id}'"
         )
@@ -156,21 +210,26 @@ class DatabaseEditor:
         )
         self.db.commit()
 
-    def buy_ticker(self, ticker_id: str, num_shares: int):
+    def buy_ticker(self, ticker_id: str, num_shares: int, timestamp: datetime = None):
         """
         buy_ticker Method to buy a ticker and add it to the user portfolio.
 
         Args:
             ticker_id (str): Ticker symbol to buy.
             num_shares (int): Number of shares to buy.
+            timestamp (datetime, optional): Timestamp of the purchase.
 
         Returns:
             str: Success message if the purchase was successful, error message otherwise.
         """
         num_shares = int(num_shares)
 
-        # get the current price of the ticker
-        buy_in_price = self.get_current_price(ticker_id)
+        buy_in_price = self.get_market_value(ticker_id, timestamp)
+
+        if buy_in_price is None:
+            msg = f"Unable to determine the market value of {ticker_id.upper()} at {timestamp}."
+            logging.warning(msg)
+            return msg
 
         # check if the ticker is valid
         if not self.is_valid_ticker(ticker_id):
@@ -198,7 +257,9 @@ class DatabaseEditor:
                 f"UPDATE portfolio SET total_shares={shares + num_shares} WHERE ticker_id='{ticker_id}';"
             )
             self.db.commit()
-            logging.info(f"Added {num_shares} shares of {ticker_id.upper()} to the database.")
+            logging.info(
+                f"Added {num_shares} shares of {ticker_id.upper()} to the database."
+            )
 
         else:
             logging.info(
@@ -217,15 +278,20 @@ class DatabaseEditor:
             logging.info(f"Added {ticker_id.upper()} to user portfolio.")
 
         # add purchase to transaction history
-        self.cursor.execute(
-            f"INSERT INTO transactions (ticker_id, num_shares, price, transaction_type) VALUES ('{ticker_id}', {num_shares}, {buy_in_price}, 'buy');"
-        )
-        self.db.commit()
-        logging.info(f"Added purchase {ticker_id.upper()} to transaction history.")
+        if timestamp is not None:
+            query = f"INSERT INTO transactions (ticker_id, num_shares, price, transaction_type, date) VALUES ('{ticker_id}', {num_shares}, {buy_in_price}, 'buy', '{timestamp}');"
+            print("QUERY: ", query)
+            self.cursor.execute(query)
+        else:
+            self.cursor.execute(
+                f"INSERT INTO transactions (ticker_id, num_shares, price, transaction_type) VALUES ('{ticker_id}', {num_shares}, {buy_in_price}, 'buy');"
+            )
+            self.db.commit()
+            logging.info(f"Added purchase {ticker_id.upper()} to transaction history.")
 
         return f"Success! Purchased {num_shares} shares of {ticker_id.upper()} for ${buy_in_price:.2f} each."
 
-    def sell_ticker(self, ticker_id: str, num_shares: int):
+    def sell_ticker(self, ticker_id: str, num_shares: int, timestamp: datetime = None):
         """
         sell_ticker Method to sell a ticker from the user portfolio.
 
@@ -236,8 +302,13 @@ class DatabaseEditor:
         Returns:
             str: Success message if the sale was successful, error message otherwise.
         """
-        sale_price = self.get_current_price(ticker_id)
+        sale_price = self.get_market_value(ticker_id, timestamp)
         num_shares = int(num_shares)
+
+        if sale_price is None:
+            msg = f"Unable to determine the market value of {ticker_id.upper()} at {timestamp}."
+            logging.warning(msg)
+            return msg
 
         if not self.is_valid_ticker(ticker_id):
             msg = f"{ticker_id.upper()} is not a valid Yahoo! Finance ticker."
@@ -267,33 +338,40 @@ class DatabaseEditor:
                     f"Cannot sell {num_shares} shares of {ticker_id.upper()}, only {shares} shares are owned. Selling all ({shares}) shares."
                 )
 
-            # calculate the number of shares to sell
-            to_sell = (shares - num_shares) if num_shares < shares else shares
+            # number of shares to sell
+            to_sell = min(num_shares, shares)
 
-            if (shares - to_sell) == 0:
+            if to_sell == shares:
                 self.cursor.execute(
                     f"DELETE FROM portfolio WHERE ticker_id='{ticker_id}';"
                 )
             else:
                 # update the shares in the portfolio
                 self.cursor.execute(
-                    f"UPDATE portfolio SET total_shares={shares - to_sell} WHERE ticker_id='{ticker_id}';"
+                    f"UPDATE portfolio SET total_shares=total_shares - {to_sell} WHERE ticker_id='{ticker_id}';"
                 )
 
             self.db.commit()
-            logging.info(f"Sold {to_sell} shares of {ticker_id.upper()} for {sale_price} each.")
-
-            # add sale to transaction history
-            self.cursor.execute(
-                f"INSERT INTO transactions (ticker_id, num_shares, price, transaction_type) VALUES ('{ticker_id}', {to_sell}, {-sale_price}, 'sell');"
+            logging.info(
+                f"Sold {to_sell} shares of {ticker_id.upper()} for {sale_price} each."
             )
-            self.db.commit()
+
+            if timestamp is not None:
+                self.cursor.execute(
+                    f"INSERT INTO transactions (ticker_id, num_shares, price, transaction_type, date) VALUES ('{ticker_id}', {to_sell}, {-sale_price}, 'sell', '{timestamp}');"
+                )
+            else:
+                # add sale to transaction history
+                self.cursor.execute(
+                    f"INSERT INTO transactions (ticker_id, num_shares, price, transaction_type) VALUES ('{ticker_id}', {to_sell}, {-sale_price}, 'sell');"
+                )
+                self.db.commit()
 
             return f"Success! Sold {to_sell} shares of {ticker_id.upper()} for ${sale_price:.2f} each."
 
-    def refresh_db(self):
+    def update_ticker_data(self):
         """
-        refresh_db Method to refresh the database with the latest ticker data.
+        update_ticker_data Method to refresh the database with the latest ticker data.
         """
 
         # get all tickers from the database (ones in the portfolio)
@@ -310,7 +388,7 @@ class DatabaseEditor:
 
             # add to the database
             self.cursor.execute(
-                f"INSERT INTO ticker_data (ticker_id, open, close, high, low, volume) VALUES ('{ticker}', {open_price}, {close_price}, {high_price}, {low_price}, {volume});"
+                f"INSERT INTO ticker_data (ticker_id, price, open, close, high, low, volume) VALUES ('{ticker}', {self.get_market_value(ticker)}, {open_price}, {close_price}, {high_price}, {low_price}, {volume});"
             )
             self.db.commit()
 
@@ -361,14 +439,28 @@ class DatabaseEditor:
         Args:
             ticker_id (str): Ticker to get data for.
         """
+
         self.cursor.execute(f"SELECT * FROM ticker_data WHERE ticker_id='{ticker_id}';")
         data = self.cursor.fetchall()
 
         return data
 
-    def get_transaction_history(self):
-        self.cursor.execute("SELECT * FROM transactions;")
+    def get_transactions(self, ticker_id: str):
+        """
+        get_transcations Returns all transactions for a given ticker in the transactions table.
+
+        Args:
+            ticker_id (str): Ticker to get transactions for.
+
+        Returns:
+            dict: A dict of all transactions for the ticker.
+        """
+        self.cursor.execute(
+            f"SELECT * FROM transactions WHERE ticker_id='{ticker_id}';"
+        )
         data = self.cursor.fetchall()
+
+        # return jsonify(data)
 
         # format the data to be returned
         transaction_num = [d[0] for d in data]
@@ -389,8 +481,7 @@ class DatabaseEditor:
                     "price": f"${price[i]:.2f}",
                     "total": f"${num_shares[i] * price[i]:.2f}",
                     "transaction_type": transaction_type[i].capitalize(),
-                    "timestamp": timestamp[i],
-                    
+                    "timestamp": str(timestamp[i]),
                 }
             )
 
@@ -398,6 +489,136 @@ class DatabaseEditor:
         data.reverse()
 
         return data
+
+    def get_transaction_history(self):
+        """
+        get_transaction_history Returns all transactions in the transactions table.
+
+        Returns:
+            dict: A dict of all transactions in the transactions table.
+        """
+        self.cursor.execute("SELECT * FROM transactions;")
+        data = self.cursor.fetchall()
+
+        # format the data to be returned
+        transaction_num = [d[0] for d in data]
+        ticker_id = [d[1] for d in data]
+        num_shares = [d[2] for d in data]
+        price = [d[3] for d in data]
+        transaction_type = [d[4] for d in data]
+        timestamp = [d[5] for d in data]
+
+        # put into a dict
+        data = []
+        for i in range(len(transaction_num)):
+            data.append(
+                {
+                    "transaction_num": f"{transaction_num[i]:5d}",
+                    "ticker_id": ticker_id[i].upper(),
+                    "num_shares": num_shares[i],
+                    "price": f"${price[i]:.2f}",
+                    "total": f"${num_shares[i] * price[i]:.2f}",
+                    "transaction_type": transaction_type[i].capitalize(),
+                    "timestamp": str(timestamp[i]),
+                }
+            )
+
+        # reverse the list so the most recent transactions are first
+        data.reverse()
+
+        return data
+
+    def display_portfolio(self):
+        """
+        display_portfolio Returns all data in the user portfolio.
+
+        Returns:
+            dict: A sorted dict of all data for the user portfolio.
+        """
+        self.cursor.execute("SELECT * FROM portfolio;")
+        portfolio = self.cursor.fetchall()
+
+        tickers = [p[0] for p in portfolio]
+        shares = [p[1] for p in portfolio]
+        returns = [p[2] for p in portfolio]
+        asset_types = [p[3] for p in portfolio]
+
+        portfolio_data = []
+        for i in range(len(tickers)):
+            portfolio_data.append(
+                {
+                    "ticker_id": tickers[i].upper(),
+                    "num_shares": shares[i],
+                    "curr_price": f"${self.get_market_value(tickers[i]):.2f}",
+                    "total_return": f"{returns[i]:.2f}%",
+                    "asset_type": asset_types[i].upper(),
+                }
+            )
+
+        sorted_portfolio_data = sorted(
+            portfolio_data, key=lambda x: x["num_shares"], reverse=True
+        )
+
+        return sorted_portfolio_data
+
+    def display_portfolio_yf(self):
+        """
+        display_portfolio Returns all data for the user portfolio with contextual yfinance data.
+
+        Returns:
+            dict: A sorted dict of all data for the user portfolio.
+        """
+        self.cursor.execute("SELECT * FROM portfolio;")
+        portfolio = self.cursor.fetchall()
+
+        tickers = [p[0] for p in portfolio]
+        shares = [p[1] for p in portfolio]
+        returns = [p[2] for p in portfolio]
+        asset_types = [p[3] for p in portfolio]
+
+        portfolio_data = []
+        for i in range(len(tickers)):
+            ticker = yf.Ticker(tickers[i])
+            yr_high = ticker.info["fiftyTwoWeekHigh"]
+            yr_low = ticker.info["fiftyTwoWeekLow"]
+            name = ticker.info["shortName"]
+
+            portfolio_data.append(
+                {
+                    "ticker_id": tickers[i].upper(),
+                    "name": name,
+                    "num_shares": shares[i],
+                    "curr_price": f"${self.get_market_value(tickers[i]):.2f}",
+                    "total_return": f"{returns[i]:.2f}%",
+                    "high_52": f"${yr_high:.2f}",
+                    "low_52": f"${yr_low:.2f}",
+                    "asset_type": asset_types[i].upper(),
+                    "net_gainloss": f"{self.calc_gainloss(tickers[i]):.2f}%",
+                }
+            )
+
+        sorted_portfolio_data = sorted(
+            portfolio_data, key=lambda x: x["num_shares"], reverse=True
+        )
+
+        return sorted_portfolio_data
+
+    def ticker_details(self, ticker_id: str):
+        """
+        ticker_details Returns all data for a given ticker in the portfolio.
+
+        Args:
+            ticker_id (str): Ticker to get data for.
+        """
+        self.cursor.execute(f"SELECT * FROM portfolio WHERE ticker_id='{ticker_id}';")
+
+        ticker = self.cursor.fetchone()
+
+        # get yfinance data about the ticker
+        ticker_data = yf.Ticker(ticker_id).info
+
+        # format the data to be returned
+        # todo complete this function for stock details button
 
     def get_asset_type(self, ticker_id: str):
         """
@@ -416,53 +637,13 @@ class DatabaseEditor:
 
         return asset_type
 
-    def display_portfolio(self):
-        self.cursor.execute("SELECT * FROM portfolio;")
-        portfolio = self.cursor.fetchall()
-
-        tickers = [p[0] for p in portfolio]
-        shares = [p[1] for p in portfolio]
-        returns = [p[2] for p in portfolio]
-        asset_types = [p[3] for p in portfolio]
-
-        portfolio_data = []
-        for i in range(len(tickers)):
-            ticker = yf.Ticker(tickers[i])
-            yr_high = ticker.info["fiftyTwoWeekHigh"]
-            yr_low = ticker.info["fiftyTwoWeekLow"]
-            name = ticker.info["shortName"]
-
-            portfolio_data.append(
-                {
-                    "ticker": tickers[i].upper(),
-                    "name": name,
-                    "num_shares": shares[i],
-                    "curr_price": f"${self.get_current_price(tickers[i]):.2f}",
-                    "total_return": f"{returns[i]:.2f}%",
-                    "high_52": f"${yr_high:.2f}",
-                    "low_52": f"${yr_low:.2f}",
-                    "asset_type": asset_types[i].upper(),
-                }
-            )
-
-        sorted_portfolio_data = sorted(
-            portfolio_data, key=lambda x: x["num_shares"], reverse=True
-        )
-
-        return sorted_portfolio_data
-
-    def ticker_details(self, ticker_id: str):
-        self.cursor.execute(f"SELECT * FROM portfolio WHERE ticker_id='{ticker_id}';")
-
-        ticker = self.cursor.fetchone()
-
-        # get yfinance data about the ticker
-        ticker_data = yf.Ticker(ticker_id).info
-
-        # format the data to be returned
-        # todo complete this function for stock details button
-
     def asset_type_breakdown(self):
+        """
+        asset_type_breakdown Returns the asset type breakdown of the user portfolio.
+
+        Returns:
+            dict: A dict of the asset type breakdown of the user portfolio.
+        """
         # get the asset types in the portfolio
         self.cursor.execute("SELECT total_shares, asset_type FROM portfolio;")
         data = self.cursor.fetchall()
@@ -487,13 +668,30 @@ class DatabaseEditor:
 
         return asset_type_breakdown
 
+    def calc_gainloss(self, ticker_id):
+        """
+        calc_gain Calculates the gain from a ticker.
 
-# todo: DELETE (TESTING ONLY)
-if __name__ == "__main__":
-    db_editor = DatabaseEditor(password=DB_PASSWORD, database="team11")
-    db_editor.add_tickers(["AAPL", "TSLA", "MSFT"])
-    db_editor.is_valid_ticker("lpol")
-    db_editor.display_portfolio()
-    asset_type_breakdown = db_editor.asset_type_breakdown()
-    print(asset_type_breakdown)
-    db_editor.disconnect()
+        Args:
+            ticker_id (str): Ticker to calculate the gain from.
+
+        Returns:
+            float: The gain from the ticker.
+        """
+        # get the current price of the ticker
+        curr_price = self.get_market_value(ticker_id)
+
+        # get the price of the ticker at the time of purchase
+        self.cursor.execute(
+            f"SELECT num_shares, price FROM transactions WHERE ticker_id='{ticker_id}' AND transaction_type='buy';"
+        )
+        data = self.cursor.fetchall()
+
+        # loop through all transactions
+        gainloss = 0
+        for row in data:
+            num_shares = int(row[0])
+            price = float(row[1])
+            gainloss += num_shares * ((curr_price - price) / price)
+
+        return gainloss * 100  # return as a percentage
