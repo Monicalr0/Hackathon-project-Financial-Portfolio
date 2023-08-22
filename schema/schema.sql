@@ -46,7 +46,6 @@ CREATE TABLE ticker_returns (
     FOREIGN KEY(ticker_id) REFERENCES tickers(ticker_id)
 );
 
---  ? something like this if we decide to have accounts/users 
 CREATE TABLE accounts (
     account_num INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(20),
