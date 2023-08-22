@@ -3,6 +3,117 @@
 {% block main %}
 <div class="container">
     <h2>Home</h2>
-    
+    <br>
+
+    <body>
+        <!-- table to display the current portfolio tickers for the user -->
+        <h4>Portfolio Assets</h4>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Ticker</th>
+                    <th>Short Name</th>
+                    <th>Shares</th>
+                    <th>Total Return (All Time)</th>
+                    <th>Market Value</th>
+                    <th>52-week High</th>
+                    <th>52-week Low</th>
+                    <th>Asset Type</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ticker_data in portfolio_data %}
+                <tr>
+                    <td>{{ ticker_data.ticker }}</td>
+                    <td>{{ ticker_data.name }}</td>
+                    <td>{{ ticker_data.num_shares }}</td>
+                    <td>{{ ticker_data.total_return }}</td>
+                    <td>{{ ticker_data.curr_price }}</td>
+                    <td>{{ ticker_data.high_52 }}</td>
+                    <td>{{ ticker_data.low_52 }}</td>
+                    <td>{{ ticker_data.asset_type }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!--
+        <div class="container">
+            <table id="price-table" class="table">
+                <thead>
+                    <tr>
+                        <th>Ticker</th>
+                        <th>Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+        </div>
+        <h4>Profit</h4>
+        <div class="container">
+            <table id="ticker-table-profit" class="table">
+                <thead>
+                    <tr>
+                        <th>Ticker</th>
+                        <th>Return</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+        </div>
+        <h4>Loss</h4>
+        <div class="container">
+            <table id="ticker-table-loss" class="table">
+                <thead>
+                    <tr>
+                        <th>Ticker</th>
+                        <th>Return</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+        </div>
+        -->
+
+        <h4>Asset Type Breakdown</h4>
+        <div class="container">
+            <div class="chart-container">
+                <canvas id="assetTypeChart"></canvas>
+            </div>
+        </div>
+        
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                var ctx = document.getElementById('assetTypeChart').getContext('2d');
+        
+                var assetTypeData = {
+                    {% for asset_type, percentage in asset_type_data.items() %}
+                    "{{ asset_type }}": {{ percentage }},
+                    {% endfor %}
+                };
+        
+                var data = {
+                    labels: Object.keys(assetTypeData),
+                    datasets: [{
+                        data: Object.values(assetTypeData),
+                        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56']
+                    }]
+                };
+        
+                // Create the pie chart
+                var myPieChart = new Chart(ctx, {
+                    type: 'pie',
+                    data: data
+                });
+            });
+        </script>
+    </body>
+
 </div>
 {% endblock %}

@@ -23,10 +23,33 @@
         </div>
     </form>
 
-    <body>
-        <script>
-            
-        </script>
-    </body>
+    <br>
+    <h4>Transaction History</h4>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Transaction #</th>
+                    <th>Ticker</th>
+                    <th>Shares</th>
+                    <th>Price</th>
+                    <th>Total</th>
+                    <th>Transaction Type</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for data in transaction_history %}
+                <tr>
+                    <td>{{ data.transaction_num }}</td>
+                    <td>{{ data.ticker_id }}</td>
+                    <td>{{ data.num_shares }}</td>
+                    <td>{{ data.price }}</td>
+                    <td>{{ data.total }}</td>
+                    <td>{{ data.transaction_type }}</td>
+                    <td>{{ data.timestamp }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 </div>
 {% endblock %}

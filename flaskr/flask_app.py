@@ -71,15 +71,33 @@ class TickerDataResource(Resource):
 api.add_resource(TickersResource, "/tickers")
 api.add_resource(TickerDataResource, "/tickers/<int:t_id>")
 
-
 @app.route("/")
 def home():
-    return render_template("home.html")
+    db_editor = DatabaseEditor(
+        host="localhost", user="root", password=DB_PASSWORD, database="team11"
+    )
 
+    portfolio_data = db_editor.display_portfolio()
+    asset_type_data = db_editor.asset_type_breakdown()
+
+    # refresh db with yfinance data
+    db_editor.refresh_db()
+         
+    return render_template("home.html", portfolio_data=portfolio_data, asset_type_data=asset_type_data)
 
 @app.route("/transactions")
 def transactions():
-    return render_template("transactions.html")
+    # get transcation history 
+    db_editor = DatabaseEditor(
+        host="localhost", user="root", password=DB_PASSWORD, database="team11"
+    )
+
+    transaction_history = db_editor.get_transaction_history()
+    return render_template("transactions.html", transaction_history=transaction_history)
+
+@app.route("/about")
+def about():
+    return render_template("about.html")
 
 @app.route("/buy_sell", methods=["POST"])
 def execute_buysell():
@@ -88,19 +106,17 @@ def execute_buysell():
     num_shares = request.form["num_shares"]
     transaction_type = request.form["transaction_type"]
 
-    
-
     db_editor = DatabaseEditor(
         host="localhost", user="root", password=DB_PASSWORD, database="team11"
     )
 
     if transaction_type == "buy":
-        db_editor.buy_ticker(ticker_id, num_shares)
-    else:
-        db_editor.sell_ticker(ticker_id, num_shares)
+        status = db_editor.buy_ticker(ticker_id, num_shares)
+    else: # sell
+        status = db_editor.sell_ticker(ticker_id, num_shares)
 
     db_editor.disconnect()
-    return render_template("success.html")
+    return render_template("transaction_status.html", status=status)
 
 
 if __name__ == "__main__":
