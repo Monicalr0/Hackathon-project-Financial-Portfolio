@@ -13,7 +13,7 @@ parent = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(parent)
 print(sys.path)
 
-from flaskr.add_to_db import DatabaseEditor
+from flaskr.api import DatabaseEditor
 
 global pos_tickers, neg_tickers
 pos_tickers = ["AAPL", "TSLA", "MSFT"]

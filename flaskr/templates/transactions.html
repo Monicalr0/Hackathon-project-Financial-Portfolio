@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<div class="container">
+    <h2>Transactions</h2>
+
+    <!-- form to buy/sell stock: text box for stock symbol, text box for number of shares, radio button for buy/sell, submit -->
+    <form action="/buy_sell" method="post">
+        <div class="form-group">
+            <input autocomplete="off" autofocus class="form-control" name="ticker_id" placeholder="Stock Symbol"
+                type="text" />
+        </div>
+        <div class="form-group">
+            <input autocomplete="off" autofocus class="form-control" name="num_shares" placeholder="Number of Shares"
+                type="text" />
+        </div>
+        <div class="form-group">
+            <input type="radio" name="transaction_type" value="buy"> Buy<br>
+            <input type="radio" name="transaction_type" value="sell"> Sell<br>
+        </div>
+        <div class="form-group">
+            <button class="btn btn-primary" type="submit">Submit</button>
+        </div>
+    </form>
+
+    <body>
+        <script>
+            
+        </script>
+    </body>
+</div>
+{% endblock %}

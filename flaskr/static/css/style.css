@@ -85,3 +85,7 @@ body {
     color: lightgrey;
     text-align: center;
 }
+
+.form-group {
+    margin-bottom: 15px;
+}
