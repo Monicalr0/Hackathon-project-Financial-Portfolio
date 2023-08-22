@@ -25,6 +25,7 @@ CREATE TABLE portfolio (
     ticker_id VARCHAR(10),
     total_shares INT,
     total_return DECIMAL,
+    asset_type VARCHAR(10),
     FOREIGN KEY(ticker_id) REFERENCES tickers(ticker_id)
 );
 
