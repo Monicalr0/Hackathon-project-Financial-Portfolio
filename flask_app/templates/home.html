@@ -13,8 +13,9 @@
     <div class="row"
         style="display: flex; justify-content: space-between; align-items: center; padding-left: 1%; padding-right: 1%;">
         <h4>Portfolio Assets</h4>
-        <button type="button" class="btn btn-dark mt-3" id="fetch-data-button">Refresh Data</button>
+        <button type="button" class="btn btn-dark" id="fetch-data-button">Refresh Data</button>
     </div>
+
     <table class="table">
         <thead>
             <tr>
@@ -52,14 +53,15 @@
         <button type="button" class="btn btn-dark" onclick="loadDetail()">View Details</button>
     </div>
 
-    <div class="container">
-        <table class="table">
-            <thead id="detailTableHeader">
-            </thead>
-            <tbody id="detailTable">
-
-            </tbody>
-        </table>
+    <div class="container" id="tickerDetail">
+        <div id="detailTable">
+            <table class="table">
+                <thead id="detailTableHeader">
+                </thead>
+                <tbody id="detailTableBody">
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <br>
@@ -75,7 +77,7 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function AssetsBreakdown() {
             var ctx = document.getElementById('assetTypeChart').getContext('2d');
 
             fetch('/assets_breakdown')
@@ -85,7 +87,7 @@
                         labels: Object.keys(assetTypeData),
                         datasets: [{
                             data: Object.values(assetTypeData),
-                            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56']
+                            backgroundColor: ['#6b9080', '#a4c3b2', '#cce3de', '#eaf4f4']
                         }]
                     };
 
@@ -97,6 +99,8 @@
                 })
                 .catch(error => console.error('Error fetching data:', error));
         });
+
+        AssetsBreakdown();
     </script>
 
     <script>
@@ -117,39 +121,104 @@
                 .then(response => response.json())
                 .then(data => {
                     console.log(data)
+                    const transData = data[0].map((_, index) => data.map(subarray => subarray[index]))
+                    console.log("transformed")
+                    console.log(transData)
+                    const tickerDetailTable = document.getElementById("detailTable")
+                    tickerDetailTable.style = 'display: block;height: 300px;overflow-y: auto;'
                     const tickerDetailHeader = document.getElementById("detailTableHeader");
                     tickerDetailHeader.innerHTML = ` 
                         <tr>
                             <th>Date</th>
+                            <th>Absolute Profit</th>
+                            <th>Percent Profit</th>
                             <th>Open</th>
-                            <th>Low</th>
                             <th>Close</th>
+                            <th>Low</th>
                             <th>High</th>
                             <th>Volume</th>
                         </tr>
                     `
-                    const tickerDetailTable = document.getElementById("detailTable");
-                    tickerDetailTable.innerHTML = `` // Clean table body after refresh
+                    const tickerDetailTableBody = document.getElementById("detailTableBody");
+                    tickerDetailTableBody.innerHTML = `` // Clean table body after refresh
                     if (Object.keys(data).length === 0) {
                         const row = document.createElement("tr");
                         row.innerHTML = `<td colspan="8">No data available</td>`;
-                        tickerDetailTable.appendChild(row);
+                        tickerDetailTableBody.appendChild(row);
                     } else {
+                        const dates = []
                         for (const index in data) {
                             const detail = data[index];
+                            const date = new Date(detail[8])
+                            dates.push(date.toISOString().split("T")[0])
                             const row = document.createElement("tr");
                             row.innerHTML = `
-                            <td>${detail[6]}</td>
+                            <td>${date.toISOString().split("T")[0]}</td> 
                             <td>${detail[1]}</td>
-                            <td>${detail[2]}</td>
+                            <td>${detail[2] + '%'}</td>
                             <td>${detail[3]}</td>
-                            <td>${detail[4]}</td>
                             <td>${detail[5]}</td>
+                            <td>${detail[4]}</td>
+                            <td>${detail[6]}</td>
+                            <td>${detail[7]}</td>
                             `
-                            tickerDetailTable.appendChild(row);
+                            tickerDetailTableBody.appendChild(row);
                         }
-                    }
 
+                        //Remove existing chart.
+                        const totDiv = document.getElementById('tickerOverTimeDiv');
+                        if (totDiv) {
+                            totDiv.remove();
+                        }
+
+                        //Load Line chart
+                        const tickerDetail = document.getElementById("tickerDetail");
+                        const chart = document.createElement("div");
+                        // chart.classList.add("chart-container");
+                        chart.setAttribute('id', 'tickerOverTimeDiv');
+                        chart.innerHTML = `
+                            <p>Click on the attribute below to view different lines. 
+                                Each line is hidden when there is a strikethrough on the attribute and vice versa. <p>
+                            <canvas id="tickerOverTimeChart">
+                            </canvas>
+                            <br>
+                        `
+                        tickerDetail.insertBefore(chart, tickerDetail.children[0])
+                        const ctx = document.getElementById("tickerOverTimeChart").getContext("2d");
+
+                        const lineChart = new Chart(ctx, {
+                            type: "line",
+                            data: {
+                                labels: dates,
+                                datasets: [{
+                                    label: 'Price ($)',
+                                    data: transData[5]
+                                },
+                                {
+                                    label: 'Absolute profit ($)',
+                                    data: transData[1],
+                                    hidden: true
+                                },
+                                {
+                                    label: "Percentage Profit (%)",
+                                    data: transData[2],
+                                    hidden: true
+                                },
+                                {
+                                    label: "Volume (shares)",
+                                    data: transData[7],
+                                    hidden: true
+                                }
+                                ]
+                            },
+                            options: {
+                                legend: {
+                                    labels: 'price'
+                                }
+                            }
+                        })
+                    }
+                    updateScrollableFeedHeight(); // leave this here please
                 })
                 .catch(error => {
                     console.error("Error fetching data:", error);
@@ -161,7 +230,7 @@
         document.getElementById("fetch-data-button").addEventListener("click", fetchYFinanceData);
 
         function fetchYFinanceData() {
-            fetch("/create_portfolio_table")
+            fetch("/portfolio_table")
                 .then(response => response.json())
                 .then(data => {
                     // Data is fetched successfully, update the table
@@ -188,12 +257,12 @@
                             portfolioBody.appendChild(row);
                         }
                     }
+                    updateScrollableFeedHeight();
                 })
                 .catch(error => {
                     console.error("Error fetching data:", error);
                 });
         }
-
         // fetch Yahoo Finance data when the page loads
         document.addEventListener("DOMContentLoaded", fetchYFinanceData);
     </script>

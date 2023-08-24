@@ -744,7 +744,6 @@ class DatabaseEditor:
 
         # format the data to be returned
         # todo complete this function for stock details button
-        
 
     def get_asset_type(self, ticker_id: str):
         """

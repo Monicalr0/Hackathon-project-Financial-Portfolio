@@ -1,0 +1,165 @@
+@import url('https://fonts.googleapis.com/css2?family=Oswald&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300&family=Yeseva+One&display=swap');
+/* Reset */
+body,
+html {
+    margin: 0;
+    padding: 0;
+}
+
+/* Body */
+body {
+    /* padding-bottom: 5vh; */
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    min-height: 110vh;
+    font-family: 'Josefin Sans', sans-serif;
+}
+
+body a {
+    color: #518379;
+}
+
+body a:hover {
+    color: #8bbbb1;
+}
+
+.logo {
+    width: 65px;
+    height: auto;
+    margin-right: 10px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: 'Yeseva One', cursive;
+    color: #518379;
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    padding-top: 2%;
+    padding-right: 0.5%;
+    padding-bottom: 2%;
+    padding-left: 0.5%;
+    background-color: #edf8f6;
+}
+
+/* Navbar */
+.navbar,
+.navbar-nav li a,
+.navbar-brand {
+    background-color: #333;
+    font-family: 'Yeseva One', cursive;
+    color: #8bbbb1;
+}
+
+.navbar-brand {
+    font-size: x-large;
+    font-family: 'Yeseva One', cursive;
+    font-weight: bold;
+}
+
+.navbar-nav li a {
+    font-size: x-large;
+}
+
+/* ensure adequate spacing to the left of the nav links */
+.navbar-nav {
+    margin-left: auto;
+}
+
+/* config navbar links */
+.navbar-nav li a:hover,
+.navbar-brand:hover {
+    color: white;
+}
+
+/* styling for the div with the sidebar and main-content */
+#basebody {
+    display: flex;
+    flex: 1;
+}
+
+.sidebar {
+    overflow: hidden;
+    width: 22vw;
+    padding: 25px;
+    background-color: #bddfd8;
+    color: #333;
+}
+
+.sidebar ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.sidebar li {
+    margin-bottom: 15px;
+}
+
+.sidebar a {
+    color: #333;
+    text-decoration: underline;
+}
+
+/* Footer */
+#footer {
+    width: 100%;
+    margin-top: auto;
+    padding: 10px;
+    background-color: #333;
+    font-size: small;
+    color: #edf8f6;
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.chart-container {
+    width: 400px;
+    height: 400px;
+    margin: auto;
+}
+
+#assetTypeChart {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+#tickerOverTimeChart {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Set fixed header */
+#detailTableHeader {
+    position: sticky;
+    z-index: 1;
+    top: 0;
+    background-color: #edf8f6; /*Same as background color*/;
+}
+
+#detailTableBody {
+    overflow-y: scroll;
+}
+
+.btn {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.scrollable-feed {
+    overflow-y: auto;
+    max-height: calc(100vh - 50px);
+}
