@@ -23,7 +23,7 @@ This tool allows clients to have an easy-to-use interface that can help them und
 
 Data from the webapp can also be accessed manually through a variety of API endpoints. For more information, please refer to the `docs.html` page.
 
-<!-- todo add db structure and a demo video(?) -->
+Our underlying database schema is shown below:
 ![Image showing the database structure.](images/schema.png "Database Structure")
 
 ## ⚙️ Installation
