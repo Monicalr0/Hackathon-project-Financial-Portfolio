@@ -1,0 +1,234 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<div class="container">
+    <h2>Function Documentation</h2>
+    <br>
+    <table class="table">
+        <tr>
+            <th>Function Name</th>
+            <th>Definition</th>
+        </tr>
+        <tr>
+            <td>get_tables(self)</td>
+            <td>Returns all tables in the database as a List of tables.</td>
+        </tr>
+        </tr>
+        <tr>
+            <td>get_ticker(self, ticker_id)</td>
+            <td>Gets a ticker from the database (table: portfolio) and returns a ticker symbol.</td>
+        </tr>
+        <tr>
+            <td>get_tickers(self)</td>
+            <td>Gets all tickers from the user's portfolio and returns a list of all tickers in the database.</td>
+        </tr>
+        <tr>
+            <td>is_valid_ticker(self, ticker_id: str)</td>
+            <td>Checks if a ticker is a valid ticker symbol and returns a boolean value.
+            </td>
+        </tr>
+        <tr>
+            <td>calc_profit(self, ticker_id: str, timestamp: datetime = None)</td>
+            <td>Retrieves the market value of a given ticker at a designated timestamp, with the default being the
+                current time.</td>
+        </tr>
+        <tr>
+            <td>get_market_value(self, ticker_id: str, timestamp: datetime = None)</td>
+            <td>Retrieves the market value of a given ticker at a designated timestamp, with the default being the
+                current time.</td>
+        </tr>
+
+        <tr>
+            <td>get_current_price(self, ticker_id: str)</td>
+            <td>Gets the current price of a ticker which returns the current price of the ticker as a float value.
+            </td>
+        </tr>
+        <tr>
+            <td>update_total_return(self, ticker_id: str)</td>
+            <td>Updates the total return of a ticker in the portfolio. It calculates the total return of a ticker
+                selected from start to today.
+                Total Return = (Ending Value - Beginning Value) / Beginning Value.
+
+            </td>
+        </tr>
+
+        <tr>
+            <td>buy_ticker(self, ticker_id: str, num_shares: int)</td>
+            <td>Allows users to select a ticker and specify the numbers of shares that they want to purchase to add in
+                their portfolios.
+                This function will return a success message upon a successful purchase, and an error message if any
+                issue arise.
+            </td>
+        </tr>
+        <tr>
+            <td>backlog_ticker_data(self, ticker_id: str, timestamp: datetime = None)</td>
+            <td>Fetches the historical data of the ticker including daily opening price(OPEN), daily highest
+                price(HIGH), daily lowest price(LOW), daily closing price(CLOSE), daily volume(VOL) and timestamp from a
+                selected range of dates.</td>
+        </tr>
+        <tr>
+            <td>sell_ticker(self, ticker_id: str, num_shares: int)</td>
+            <td>Allows users to select a ticker and specify the numbers of shares that they want to sell from their
+                portfolios.
+                This function will return a success message upon a successful sale, and an error message if any issue
+                arise.
+            </td>
+        </tr>
+
+        <tr>
+            <td>add_ticker(self, ticker_id: str)</td>
+            <td>Adds a ticker to the tickers table if it doesn't already exist and is a valid Yahoo! Finance Ticker.
+            </td>
+        </tr>
+
+        <tr>
+            <td>add_tickers(self, ticker_ids: list):</td>
+            <td>Allows users to add multiple tickers to the database at once and returns a list of
+                tickers to add to the database.
+            </td>
+        </tr>
+
+        <tr>
+            <td>get_ticker_data(self, ticker_id: str)</td>
+            <td>Returns all data for a given ticker in the ticker_data table.
+            </td>
+        </tr>
+
+        <tr>
+            <td>get_transaction_history(self)</td>
+            <td>Returns all transactions for a given ticker in the transactions table and returns a dictionary of all
+                transactions.
+            </td>
+        </tr>
+        <tr>
+            <td>display_portfolio(self)</td>
+            <td>Returns all data for the user portfolio as a sorted dictionary.
+            </td>
+        </tr>
+        <tr>
+            <td>get_num_shares(self, ticker_id: str)</td>
+            <td>Returns the number of shares of a ticker in the user portfolio.
+            </td>
+        </tr>
+        <tr>
+            <td>display_portfolio_yf(self)</td>
+            <td>Returns all data for the user portfolio with contextual yfinance data as a sorted dictionary.
+            </td>
+
+        <tr>
+
+        <tr>
+            <td>ticker_details(self, ticker_id: str)</td>
+            <td>Returns all data for a given ticker in the portfolio.
+            </td>
+        </tr>
+
+
+        <td>get_asset_type(self, ticker_id: str)</td>
+        <td>Returns the asset type of a ticker with provided ticker id.
+        </td>
+        </tr>
+
+
+
+        <tr>
+            <td>asset_type_breakdown(self)</td>
+            <td>Returns the asset type breakdown of the user portfolio as a dictionary.
+
+            </td>
+        </tr>
+        <tr>
+            <td>calc_gainloss(self, ticker_id)</td>
+            <td>Computes the net gain and loss from a given ticker with ticker id provided.
+            </td>
+        </tr>
+
+    </table>
+
+    <h2>API Endpoint Documentation</h2>
+    <br>
+    <table class="table">
+
+        <tr>
+            <th>Methods Name</th>
+            <th>Definition</th>
+            <th>Library</th>
+        </tr>
+        <tr>
+            <td>api.add_resource(CreatePortfolioTableItem, "/portfolio_table")</td>
+            <td> Returns data in JSON format from the end point /portfolio_table as a new API resource named
+                'CreatePortfolioTableItem'
+            </td>
+            <td> Flask-RESTful</td>
+        </tr>
+
+        <tr>
+            <td>api.add_resource(PortfolioResource, "/portfolio")</td>
+            <td>Returns data in JSON format from the end point /portfolio as a new API resource named
+                'PortfolioResource'
+            </td>
+        </tr>
+
+        <tr>
+            <td>api.add_resource(TransactionHistoryResource, "/transaction_history/<string:t_id>")</td>
+            <td>Returns data in JSON format from the end point /transaction_history/<string:t_id> as a new API resource
+                    named 'TransactionHistoryResource'
+            </td>
+        </tr>
+
+        <tr>
+            <td>api.add_resource(TransactionsHistoryResource, "/transaction_history")</td>
+            <td>Returns data in JSON format from the end point /transaction_history/ as a new API resource named
+                'TransactionHistoryResource'
+
+            </td>
+        </tr>
+
+        <tr>
+            <td>api.add_resource(BuyResource, "/buy/<string:t_id>/<int:num_shares>")</td>
+            <td>Returns data in JSON format from the end point /buy/<string:t_id>/<int:num_shares> as a new API resource
+                        named 'BuyResource'
+            </td>
+        </tr>
+
+        <tr>
+            <td>api.add_resource(SellResource, "/sell/<string:t_id>/<int:num_shares>")</td>
+            <td>Returns data in JSON format from the end point /sell/<string:t_id>/<int:num_shares> as a new API
+                        resource named 'SellResource'
+
+            </td>
+        </tr>
+
+        <tr>
+            <td>api.add_resource(TickersResource, "/tickers")</td>
+            <td>Returns data in JSON format from the end point /tickers as a new API resource named 'TickersResource'
+
+            </td>
+        </tr>
+
+        <tr>
+            <td>api.add_resource(TickerDataResource, "/tickers/<string:t_id>")</td>
+            <td>Returns data in JSON format from the end point /tickers/<string:t_id> as a new API resource named
+                    'TickerDataResource'
+            </td>
+        </tr>
+
+        <tr>
+            <td>api.add_resource(AssetsBreakdownResource, "/assets_breakdown")</td>
+            <td>Returns data in JSON format from the end point /assets_breakdown as a new API resource named
+                'AssetsBreakdownResource'
+
+            </td>
+        </tr>
+
+        <tr>
+            <td>api.add_resource(TickerDataTableResource, "/ticker_data/<string:t_id>")</td>
+            <td>Returns data in JSON format from the end point /ticker_data/<string:t_id> as a new API resource named
+                    'TickerDataTableResource'
+
+            </td>
+        </tr>
+    </table>
+</div>
+
+{% endblock %}

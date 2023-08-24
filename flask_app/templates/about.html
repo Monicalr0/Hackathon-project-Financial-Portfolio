@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<div class="container">
+    <h2>About</h2>
+    <br>
+    <!--
+    <h4>User Portfolio Information</h4>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>User ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Total Holdings</th>
+            </tr>
+        </thead>
+    </table>-->
+
+    <h4>Introduction </h4>
+    <p id="Intro">
+        Our Portfolio Management System serves as a highly effective gateway to comprehensive investment management. It
+        establishes connections within the global array of securities, encompassing stocks, bonds, ETFs, mutual funds,
+        and more. Through our platform, users gain the capability to adeptly oversee their portfolios, utilizing a suite
+        of efficient tools and data visualizations. The user
+        interface has been meticulously designed to present the portfolio's performance transparently, alongside the
+        user's financial details, including cash flow and total earnings. Our system's functionality goes beyond risk
+        mitigation, offering users the potential to optimize decision-making and enhance financial foresight.
+    </p>
+
+    <h4>Key Features</h4>
+    <ul>
+        <li>
+            <p><strong>Buy/Sell Functionality:</strong>
+                The user can add and remove different types of securities in their portfolio by selecting the buy/sell
+                radio buttons and entering the ticker symbol and the number of shares on the <a
+                    href="{{ url_for('transactions') }}">Transactions</a> page. The system automatically updates the
+                portfolio’s performance and the user’s financial information after each transaction.
+            </p>
+        </li>
+        <li>
+            <p><strong>Portfolio Tracking:</strong>
+                Performance and information data for all the securities’ is
+                tracked in the system, which are Total Return, Net Gain/Loss, Market Value, 52-week High, 52-week Low,
+                and Asset
+                type. The strong presentation of information enables the users to keep track of their as the number of
+                shares held and buy-in the price of their securities.
+            </p>
+        </li>
+        <li>
+            <p><strong>Performance tracking:</strong>
+                Users are able to see the trend of the security and the
+                rate of returns with effective graphic presentations and numeric values.
+            </p>
+        </li>
+        <li>
+            <p><strong>Diversification Analysis:</strong>
+                The platform tracks different market sectors and product
+                types.
+            </p>
+        </li>
+        <li>
+            <p><strong>Transaction Management:</strong>
+                Users are able to view their transaction history since the portfolio has an aggregate transaction table that records the number of shares and the sale/purchase price of each transaction.
+            </p>
+        </li>
+    </ul>
+
+
+    <h4>Functionalities</h4>
+    <ul>
+        <li>
+            <b>User Interface Design:</b>
+            The user interface is designed to be intuitive and easy to use. The user can navigate through the website using the navigation bar, as well as appropriately placed links. Where there are large sets of data displayed, scrollable containers are used to improve readability.
+
+            To help the user make informed decisions about their assets, a real-time feed of market news from the Wall Street Journal is displayed in the sidebar.
+        </li>
+        <li>
+            <b>Data Input:</b> 
+            While the webapp has several API endpoints (documented on the <a href="{{ url_for('docs') }}">Docs</a> page, the simplest way to interact with their portfolio is through the Transactions page. The user can buy or sell securities by entering the ticker symbol and the number of shares they want to buy or sell. The system automatically updates the portfolio’s performance and the user’s financial information after each transaction.
+        </li>
+        <li>
+            <b>Data Visualization:</b> 
+            Data is displayed in two primary ways in the Portfolio Dashboard: 
+            <ol>
+                <li>
+                    Charts/Graphs: The user can view the performance of their portfolio over time, as well as the performance of individual securities. The user can also view the distribution of their portfolio by asset type.
+                </li>
+                <li>
+                    Tables: The user can view their portfolio holdings, as well as the transaction history for their portfolio.
+            </ol>
+        </li>
+    </ul>
+
+    <!-- commenting out for now since we haven't had time to implement total return
+        <h4>Logistics</h4>
+    <table class="table">
+        <th>Total Return of Ticker X</th>
+        <td>Initial investment value = number of shares of X * share price when bought in
+            Closed transaction to cash = number of shares of X* sold price
+            Total return = (number shares of X currently holding * current share price of X + Closed transaction to cash
+            - initial investment value)/initial investment value * 100%
+        </td>
+    </table>
+    </table class="table">-->
+</div>
+
+{% endblock %}

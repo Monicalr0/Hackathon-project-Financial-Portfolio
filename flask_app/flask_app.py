@@ -25,7 +25,7 @@ class CreatePortfolioTableItem(Resource):
     def __del__(self):
         self.db_editor.disconnect()
 
-    # GET /create_portfolio_table
+    # GET /portfolio_table
     def get(self):
         table = {}
         for t_id in self.db_editor.get_tickers():
@@ -107,7 +107,7 @@ class TransactionHistoryResource(Resource):
             return {"error": f"Transaction {t_id} not found"}, 404
 
 
-class TranscationsHistoryResource(Resource):
+class TransactionsHistoryResource(Resource):
     def __init__(self):
         self.db_editor = DatabaseEditor(
             host="localhost", user="root", password=DB_PASSWORD, database="team11"
@@ -253,10 +253,10 @@ class AssetsBreakdownResource(Resource):
 
 
 # add resources to api
-api.add_resource(CreatePortfolioTableItem, "/create_portfolio_table")
+api.add_resource(CreatePortfolioTableItem, "/portfolio_table")
 api.add_resource(PortfolioResource, "/portfolio")
 api.add_resource(TransactionHistoryResource, "/transaction_history/<string:t_id>")
-api.add_resource(TranscationsHistoryResource, "/transaction_history")
+api.add_resource(TransactionsHistoryResource, "/transaction_history")
 api.add_resource(BuyResource, "/buy/<string:t_id>/<int:num_shares>")
 api.add_resource(SellResource, "/sell/<string:t_id>/<int:num_shares>")
 api.add_resource(TickersResource, "/tickers")
