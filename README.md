@@ -35,7 +35,7 @@ Data from the webapp can also be accessed manually through a variety of API endp
 
 Our underlying database schema is shown below:
 
-![Image showing the database structure.](images/schema.png 'Database Structure')
+![Image showing the database structure.](flask_app/static/images/schema.png 'Database Structure')
 
 ## ⚙️ Installation
 
