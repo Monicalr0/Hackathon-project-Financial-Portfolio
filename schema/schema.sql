@@ -10,14 +10,16 @@ CREATE TABLE tickers (
 -- data for the portfolio tickers 
 CREATE TABLE ticker_data (
     ticker_id VARCHAR(10),
-    price DECIMAL,
+    abs_profit DECIMAL,
+    percent_profit DECIMAL,
     open DECIMAL,
     low DECIMAL,
     close DECIMAL,
     high DECIMAL,
     volume INT,
     date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY(ticker_id) REFERENCES tickers(ticker_id)
+    FOREIGN KEY(ticker_id) REFERENCES tickers(ticker_id),
+    UNIQUE KEY unique_ticker_date (ticker_id, date)
 );
 
 -- Tickers the user has
@@ -39,19 +41,19 @@ CREATE TABLE transactions (
     FOREIGN KEY(ticker_id) REFERENCES tickers(ticker_id)
 );
 
-CREATE TABLE ticker_returns (
-    ticker_id VARCHAR(10),
-    mean_return DECIMAL,
-    date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY(ticker_id) REFERENCES tickers(ticker_id)
-);
+-- CREATE TABLE ticker_returns (
+--     ticker_id VARCHAR(10),
+--     mean_return DECIMAL,
+--     date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--     FOREIGN KEY(ticker_id) REFERENCES tickers(ticker_id)
+-- );
 
-CREATE TABLE accounts (
-    account_num INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(20),
-    password VARCHAR(20),
-    email VARCHAR(50),
-    first_name VARCHAR(20),
-    last_name VARCHAR(20),
-    balance DECIMAL
-);
+-- CREATE TABLE accounts (
+--     account_num INT AUTO_INCREMENT PRIMARY KEY,
+--     username VARCHAR(20),
+--     password VARCHAR(20),
+--     email VARCHAR(50),
+--     first_name VARCHAR(20),
+--     last_name VARCHAR(20),
+--     balance DECIMAL
+-- );

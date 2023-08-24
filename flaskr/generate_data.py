@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 
+
 def random_stock_market_datetime(start_date=datetime(2023, 1, 1), end_date=None):
     if end_date is None:
         end_date = datetime.today() - timedelta(days=1)  # yesterday
@@ -51,29 +52,23 @@ if __name__ == "__main__":
         "AAPL",  # Apple Inc. - Stock
         "GOOGL",  # Alphabet Inc. - Stock
         "TSLA",  # Tesla, Inc. - Stock
-        "BTC",  # Bitcoin - Cryptocurrency
         "MSFT",  # Microsoft Corporation - Stock
-        "ETH",  # Ethereum - Cryptocurrency
         "AMZN",  # Amazon.com, Inc. - Stock
-        "XRP",  # XRP - Cryptocurrency
         "AAP",  # Advance Auto Parts, Inc. - Stock
         "VWO",  # Vanguard FTSE Emerging Markets ETF - ETF
         "JNJ",  # Johnson & Johnson - Stock
         "V",  # Visa Inc. - Stock
-        "BTC",  # Bitcoin - Cryptocurrency
         "FB",  # Meta Platforms, Inc. - Stock
         "NVDA",  # NVIDIA Corporation - Stock
         "GLD",  # SPDR Gold Trust - Gold ETF
-        "ETH",  # Ethereum - Cryptocurrency
         "XOM",  # Exxon Mobil Corporation - Stock
         "XLF",  # Financial Select Sector SPDR Fund - Financial ETF
-        "ADA",  # Cardano - Cryptocurrency
     ]
 
     for dt in datetimes:
         ticker = random.choice(tickers)  # random ticker to buy/sell
         num_shares = random.randint(1, 13)  # random number of shares to buy/sell
-        # 70% chance to sell, 30% chance to buy
+        # 50% chance to buy, 50% chance to sell
         if random.random() < 0.5:
             db_editor.sell_ticker(ticker, num_shares, dt)
         else:
