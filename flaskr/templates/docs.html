@@ -13,11 +13,29 @@
             <td>get_tables(self)</td>
             <td>Returns all tables in the database and returns a List of tables in the database.</td>
         </tr>
+        </tr>
+        <tr>
+            <td>get_ticker(self, ticker_id)</td>
+            <td>Gets a ticker from the database (table: portfolio) and returns a ticker symbol</td>
+        </tr>
+        <tr>
+            <td>get_tickers(self)</td>
+            <td>Gets all tickers from the user's portfolio and returns a list of all tickers in the database.</td>
+        </tr>
         <tr>
             <td>is_valid_ticker(self, ticker_id: str)</td>
-            <td>Check if a ticker is a valid ticker symbol and returns a boolean value.
+            <td>Checks if a ticker is a valid ticker symbol and returns a boolean value.
             </td>
         </tr>
+        <tr>
+            <td>calc_profit(self, ticker_id: str, timestamp: datetime = None)</td>
+            <td>Retrieves the market value of a given ticker at a designated timestamp, with the default being the current time.</td>
+        </tr>
+        <tr>
+            <td>get_market_value(self, ticker_id: str, timestamp: datetime = None)</td>
+            <td>Retrieves the market value of a given ticker at a designated timestamp, with the default being the current time.</td>
+        </tr>
+
         <tr>
             <td>get_current_price(self, ticker_id: str)</td>
             <td>Get the current price of a ticker which returns the current price of the ticker as a float value.
@@ -33,29 +51,26 @@
 
         <tr>
             <td>buy_ticker(self, ticker_id: str, num_shares: int)</td>
-            <td>Method to buy a ticker and add it to the user portfolio.
-                Args: ticker_id (str): Ticker symbol to buy.
-                num_shares (int): Number of shares to buy.
-                Returns:
-                str: Success message if the purchase was successful, error message
-                otherwise.
+            <td>Allow users to select a ticker and specify the numbers of shares that they want to purchase to add in their portfolios.
+                This function will return a success message upon a successful purchase, and an error message if any issue arise.
             </td>
         </tr>
-
+        <tr>
+            <td>backlog_ticker_data(self, ticker_id: str, timestamp: datetime = None)</td>
+            <td>Allow users to select a ticker and specify the numbers of shares that they want to purchase to add in their portfolios.
+                This function will return a success message upon a successful purchase, and an error message if any issue arise.
+            </td>
+        </tr>
         <tr>
             <td>sell_ticker(self, ticker_id: str, num_shares: int)</td>
-            <td>sell_ticker Method to sell a ticker from the user portfolio. Args:
-                ticker_id (str): Ticker symbol to sell.
-                num_shares (int): Number of shares to sell. Returns: str: Success message
-                if the sale was successful, error message otherwise.
+            <td>Allow users to select a ticker and specify the numbers of shares that they want to sell from their portfolios.
+                This function will return a success message upon a successful sale, and an error message if any issue arise.
             </td>
         </tr>
 
         <tr>
             <td>add_ticker(self, ticker_id: str)</td>
-            <td>add_ticker Adds a ticker to the tickers table if it doesn't already exist and is a valid Yahoo! Finance
-                ticker.Args:
-                ticker_id (str): Ticker to add to the database.
+            <td>Adds a ticker to the tickers table if it doesn't already exist and is a valid Yahoo! Finance
             </td>
         </tr>
 
@@ -76,14 +91,13 @@
 
         <tr>
             <td>get_transaction_history(self)</td>
-            <td>get_transaction_history Returns all transactions in the transactions table. Returns: dict: A dict of all
-                transactions in the transactions table.m
+            <td>Returns all transactions in the transactions table.
             </td>
         </tr>
 
         <tr>
             <td>get_asset_type(self, ticker_id: str)</td>
-            <td>get_asset_type Return the asset type of a ticker.
+            <td>Returns the asset type of a ticker.
                 Args:
                 ticker_id (str): Ticker to get the asset type of.
                 Returns:

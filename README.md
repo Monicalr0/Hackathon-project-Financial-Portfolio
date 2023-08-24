@@ -1,134 +1,96 @@
-<!-- TODO: file in readme -->
-<p align="center">
-  <a href="" rel="noopener">
- <img src="" alt="Project logo"></a>
-</p>
-<h3 align="center">Project Title</h3>
-
-<div align="center">
-
-</div>
-
----
-
-<p align="center"> Few lines describing your project.
-    <br> 
-</p>
-
 ## 📝 Table of Contents
 
 - [📝 Table of Contents](#-table-of-contents)
-- [🧐 Problem Statement ](#-problem-statement-)
-- [💡 Idea / Solution ](#-idea--solution-)
-- [⛓️ Dependencies / Limitations ](#️-dependencies--limitations-)
-- [🚀 Future Scope ](#-future-scope-)
-- [🏁 Getting Started ](#-getting-started-)
-  - [Prerequisites](#prerequisites)
-  - [Installing](#installing)
-- [🎈 Usage ](#-usage-)
+- [🧐 Project Description ](#-project-description-)
+- [⚙️ Installation](#️-installation)
+- [📊 Usage ](#-usage-)
 - [⛏️ Built With ](#️-built-with-)
+- [🪫 Current Limitations ](#-current-limitations-)
+- [🚀 Future Scope ](#-future-scope-)
 - [✍️ Authors ](#️-authors-)
-- [🎉 Acknowledgments ](#-acknowledgments-)
+- [📸 Demo Images ](#-demo-images-)
+- [📃 License](#-license)
 
-## 🧐 Problem Statement <a name = "problem_statement"></a>
-For the project, out team is aimed to deisgn an application that helps clients to manage a financial portfolio. Our main goal is to help client manage their stock and cash, and identify the market trend. 
+## 🧐 Project Description <a name = "description"></a>
+Our team aimed to design a web application with an API that guides clients in managing a financial portfolio, allowing clients to:
+- View the performance of their portfolios
+- Add or remove assets from their portfolios
+- View detailed info on trends over time for each asset in their portfolio
+- View their transaction history
+- See a breakdown of their portfolio by asset type
 
-- IDEAL: The tool should facilitate clients to browse portfolios, view the performance of the portfolios via graphs and numbers, add or remove tickers from their portfolios. 
-- REALITY: 
-- CONSEQUENCES: Providing this tool allows clients to have an easy to use interfaces that can help them understand the current trend in the market, view the status of their own financial portfolios and make cooresponding management. This can help the clients to have a clearer understanding and gain more control over their investment, hence encourage more active engagement into the market. 
+This tool allows clients to have an easy-to-use interface that can help them understand the current trends in the market, view the status of their own financial portfolios, and make informed decisions about their assets.
 
-<!-- It is useful to design and follow a specific format when writing a problem statement. While there are several options
-for doing this, the following is a simple and straightforward template often used in Business Analysis to maintain
-focus on defining the problem.
+Data from the webapp can also be accessed manually through a variety of API endpoints. For more information, please refer to the `docs.html` page.
 
-- IDEAL: This section is used to describe the desired or “to be” state of the process or product. At large, this section
-  should illustrate what the expected environment would look like once the solution is implemented.
-- REALITY: This section is used to describe the current or “as is” state of the process or product.
-- CONSEQUENCES: This section is used to describe the impacts on the business if the problem is not fixed or improved upon.
-  This includes costs associated with loss of money, time, productivity, competitive advantage, and so forth.
+Our underlying database schema is shown below:
+![Image showing the database structure.](images/schema.png "Database Structure")
 
-Following this format will result in a workable document that can be used to understand the problem and elicit
-requirements that will lead to a winning solution. -->
+## ⚙️ Installation
+To play around with the project, you can clone this repo and run the following steps. It is recommended to use a Python virtual environment to run the project. 
 
-## 💡 Idea / Solution <a name = "idea"></a>
+Run a local `MySQL` server and initialize the database schema:
 
-This section is used to describe potential solutions.
 
-Once the ideal, reality, and consequences sections have been
-completed, and understood, it becomes easier to provide a solution for solving the problem.
-
-## ⛓️ Dependencies / Limitations <a name = "limitations"></a>
-<!-- TODO: updated to flow chart if needed? -->
-Dependencies
-  1. Building the MVP: we start by retriving and parsing data using Yahoo API, and building the simplest backend using Flask, MySQL to diplay the list of tickers and their daily change in price over 8 months period in 2023. 
-
-Limitation
-
-- What are the dependencies of your project?
-- Describe each limitation in detailed but concise terms
-- Explain why each limitation exists
-- Provide the reasons why each limitation could not be overcome using the method(s) chosen to acquire.
-- Assess the impact of each limitation in relation to the overall findings and conclusions of your project, and if
-  appropriate, describe how these limitations could point to the need for further research.
-
-## 🚀 Future Scope <a name = "future_scope"></a>
-
-Write about what you could not develop during the course of the Hackathon; and about what your project can achieve
-in the future.
-
-## 🏁 Getting Started <a name = "getting_started"></a>
-
-These instructions will get you a copy of the project up and running on your local machine for development
-and testing purposes. See [deployment](#deployment) for notes on how to deploy the project on a live system.
-
-<!-- TODO: write this section after th project structure is mostly finished.  -->
-### Prerequisites
-
-What things you need to install the software and how to install them.
-
-```
-Give examples
-```
-<!-- TODO: write this section after th project structure is mostly finished.  -->
-### Installing 
-
-A step by step series of examples that tell you how to get a development env running.
-
-Say what the step will be
-
-```
-Give the example
+```mysql
+mysql -u root -p
+source schema/schema.sql
 ```
 
-And repeat
-
+Install the required packages in your virtual environment shell:
+```bash
+pip install -r requirements.txt
 ```
-until finished
+
+Optionally, you can generate a random database with a valid transaction history. `generate_data.py` assumes trading began on 2023-01-01 and ended on the current day. Live transactions can be made with the `buy` and `sell` buttons on the webapp. 
+```bash
+cd flaskr/
+python generate_data.py
 ```
 
-## 🎈 Usage <a name="usage"></a>
+```bash
+cd flaskr/
+python -m flask_app flask run
+```
+## 📊 Usage <a name="usage"></a>
 
-Add notes about how to use the system.
+Once the server is running, you can access the webapp at `http://localhost:5000/`. For details on how to use the webapp, please refer to the `about.html` page. If you're interested in the backend logic, please refer to the docstrings in `db_api.py` and `generate_data.py` and the `docs.html` page.
 
 ## ⛏️ Built With <a name = "tech_stack"></a>
 - [MySQL](https://www.mysql.com/) - Database
 - [Flask](https://flask.palletsprojects.com/en/2.3.x/) - Server
 - [Yahoo Finance API](https://finance.yahoo.com/) - Financial Data Source
+- [Bootstrap](https://getbootstrap.com/) - CSS Framework
+- [Python](https://www.python.org/) - Backend Logic
 
-<!-- - [MongoDB](https://www.mongodb.com/) - Database
-- [Express](https://expressjs.com/) - Server Framework
-- [VueJs](https://vuejs.org/) - Web Framework
-- [NodeJs](https://nodejs.org/en/) - Server Environment -->
+## 🪫 Current Limitations <a name = "limitations"></a>
+The current version of the webapp has the following limitations:
+- Only supports one client
+- Slow loading of financial information from Yahoo Finance API
+- Unable to manually sort assets in the portfolio through the webapp
+- Cannot see detailed information for assets that are not in the portfolio
+  
+## 🚀 Future Scope <a name = "future_scope"></a>
 
+In the future, we hope to address the current limitations in our minimum viable product and add new features. Primarily, we would like to add support for multiple clients and make it possible for users to view detailed information for assets that are not in their portfolio. 
 ## ✍️ Authors <a name = "authors"></a>
 
-- [@kylelobo](https://github.com/kylelobo) - Idea & Initial work
+- [Nathalie Redick](https://github.com/nredick) (Team Lead)
+  - Responsible for the overall project management, including the project structure, task assignment. 
+  - Primarily worked on the backend functionality in `db_api.py` and initial set up of the frontend website structure and styling with `Flask` and `Bootstrap`.
+- [Minyi Ma](https://github.com/Monicalr0)
+  - Led the design of the database schema in `schema.sql`.
+  - Added detailed information for the assets and displayed the information in the frontend.
+- [Kara Sha](www.linkedin.com/in/kara-sha)
+  - Resident expert on what "stocks" and "investments" actually are. 
+  - Guided schema design and data retrieval.
+  - Led code documentation and wrote the `about.html` page.
 
-See also the list of [contributors](https://github.com/kylelobo/The-Documentation-Compendium/contributors)
-who participated in this project.
+## 📸 Demo Images <a name = "demo"></a>
 
-## 🎉 Acknowledgments <a name = "acknowledgments"></a>
+![Image showing the homepage.](images/home_demo.png "Homepage")
+![Image showing the transactions page.](images/transactions_demo.png "Transactions")
 
-- Hat tip to anyone whose code was used
-- Inspiration
-- References
+## 📃 License
+
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details. 
