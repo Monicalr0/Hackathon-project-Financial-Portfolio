@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<div class="container">
+    <h2>Code Documentation</h2>
+    <br>
+    <table class="table">
+        <tr>
+            <th>Function Name</th>
+            <th>Definition</th>
+        </tr>
+        <tr>
+            <td>get_tables(self)</td>
+            <td>Returns all tables in the database and returns a List of tables in the database.</td>
+        </tr>
+        <tr>
+            <td>is_valid_ticker(self, ticker_id: str)</td>
+            <td>Check if a ticker is a valid ticker symbol and returns a boolean value.
+            </td>
+        </tr>
+        <tr>
+            <td>get_current_price(self, ticker_id: str)</td>
+            <td>Get the current price of a ticker which returns the current price of the ticker as a float value.
+            </td>
+        </tr>
+        <tr>
+            <td>update_total_return</td>
+            <td>update_total_return Method to update the total return of a ticker in the portfolio. Args: ticker_id
+                (str):
+                Ticker to update the total return of. calc the total return of a ticker from start to today. Total
+                Return =
+                (Ending Value - Beginning Value) / Beginning Value
+
+            </td>
+        </tr>
+
+        <tr>
+            <td>buy_ticker(self, ticker_id: str, num_shares: int)</td>
+            <td>Method to buy a ticker and add it to the user portfolio.
+                Args: ticker_id (str): Ticker symbol to buy.
+                num_shares (int): Number of shares to buy.
+                Returns:
+                str: Success message if the purchase was successful, error message
+                otherwise.
+            </td>
+        </tr>
+
+        <tr>
+            <td>sell_ticker(self, ticker_id: str, num_shares: int)</td>
+            <td>sell_ticker Method to sell a ticker from the user portfolio. Args:
+                ticker_id (str): Ticker symbol to sell.
+                num_shares (int): Number of shares to sell. Returns: str: Success message
+                if the sale was successful, error message otherwise.
+            </td>
+        </tr>
+
+        <tr>
+            <td>add_ticker(self, ticker_id: str)</td>
+            <td>add_ticker Adds a ticker to the tickers table if it doesn't already exist and is a valid Yahoo! Finance
+                ticker.Args:
+                ticker_id (str): Ticker to add to the database.
+            </td>
+        </tr>
+
+        <tr>
+            <td>add_tickers(self, ticker_ids: list):</td>
+            <td>add_tickers Method to add multiple tickers to the database at once. Args:ticker_ids (list): A list of
+                tickers to add to the database.
+            </td>
+        </tr>
+
+        <tr>
+            <td>get_ticker_data(self, ticker_id: str)</td>
+            <td>get_ticker_data Returns all data for a given ticker in the ticker_data table.m Args: ticker_id (str):
+                Ticker
+                to get data for.
+            </td>
+        </tr>
+
+        <tr>
+            <td>get_transaction_history(self)</td>
+            <td>get_transaction_history Returns all transactions in the transactions table. Returns: dict: A dict of all
+                transactions in the transactions table.m
+            </td>
+        </tr>
+
+        <tr>
+            <td>get_asset_type(self, ticker_id: str)</td>
+            <td>get_asset_type Return the asset type of a ticker.
+                Args:
+                ticker_id (str): Ticker to get the asset type of.
+                Returns:
+                str: Asset type of the ticker.
+            </td>
+        </tr>
+
+        <tr>
+            <td>display_portfolio(self)</td>
+            <td>display_portfolio Returns all data for the user portfolio.
+                Returns: dict: A sorted dict of all data for the user portfolio.
+            </td>
+        </tr>
+
+        <tr>
+            <td>ticker_details(self, ticker_id: str)</td>
+            <td>ticker_details Returns all data for a given ticker in the portfolio.
+                Args:
+                ticker_id (str): Ticker to get data for.
+
+            </td>
+        </tr>
+
+        <tr>
+            <td>asset_type_breakdown(self)</td>
+            <td>asset_type_breakdown Returns the asset type breakdown of the user portfolio.
+                Returns:
+                dict: A dict of the asset type breakdown of the user portfolio.
+
+            </td>
+        </tr>
+    </table>
+</div>
+
+{% endblock %}
