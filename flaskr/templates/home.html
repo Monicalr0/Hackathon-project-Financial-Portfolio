@@ -3,124 +3,199 @@
 {% block main %}
 <div class="container">
     <h2>Home</h2>
-    <p>This page breaks down the current state of your investment portfolio. If you want to make a new transaction, please visit the <a href="{{ url_for('transactions') }}">Transactions</a> page. For more details on how the portfolio is organized, please see the <a href="{{ url_for('about') }}">About</a> page.</p>
+    <p>
+        This page breaks down the current state of your investment portfolio. If you want to make a new transaction,
+        please visit the <a href="{{ url_for('transactions') }}">Transactions</a> page. For more details on how the
+        portfolio is organized, please see the <a href="{{ url_for('about') }}">About</a> page.
+    </p>
 
-
-    <body>
-        <!-- table to display the current portfolio tickers for the user -->
+    <!-- table to display the current portfolio tickers for the user -->
+    <div class="row"
+        style="display: flex; justify-content: space-between; align-items: center; padding-left: 1%; padding-right: 1%;">
         <h4>Portfolio Assets</h4>
-        <p>Below is a table of all the current assets in your portfolio. To refresh, please reload the page.</p>
+        <button type="button" class="btn btn-dark mt-3" id="fetch-data-button">Refresh Data</button>
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Ticker</th>
+                <th>Short Name</th>
+                <th>Shares</th>
+                <!-- <th>Total Return (All Time)</th>
+                    <th>Net Gain/Loss</th> -->
+                <th>Market Value</th>
+                <th>52-week High</th>
+                <th>52-week Low</th>
+                <th>Asset Type</th>
+            </tr>
+        </thead>
+        <tbody id="portfolio-body">
+            <tr>
+                <td colspan="8">Loading data...</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- todo: add button/dropdown to select from tickers in portfolio and then show details for that ticker (company info, profit graph) -->
+    <h4>View Detailed Info for a Ticker</h4>
+    <div class="dropdown">
+        <button type="button" class="btn btn-dark dropdown-toggle" id="dropdownMenu" data-toggle="dropdown"
+            aria-haspopup="true">
+            Select Ticker
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            {% for ticker_data in portfolio_data %}
+            <a type="button" class="dropdown-item" onclick="updateDropdownValue(this)">
+                {{ticker_data.ticker_id}}</a>
+            {% endfor %}
+        </div>
+        <button type="button" class="btn btn-dark" onclick="loadDetail()">View Details</button>
+    </div>
+
+    <div class="container">
         <table class="table">
-            <thead>
-                <tr>
-                    <th>Ticker</th>
-                    <th>Short Name</th>
-                    <th>Shares</th>
-                    <th>Total Return (All Time)</th>
-                    <th>Net Gain/Loss</th>
-                    <th>Market Value</th>
-                    <th>52-week High</th>
-                    <th>52-week Low</th>
-                    <th>Asset Type</th>
-                </tr>
+            <thead id="detailTableHeader">
             </thead>
-            <tbody>
-                {% for ticker_data in portfolio_data %}
-                <tr>
-                    <td><a href="{{ url_for('detail') }}/id={{ticker_data.ticker_id}}">{{ ticker_data.ticker_id }}</a></td>
-                    <td>{{ ticker_data.name }}</td>
-                    <td>{{ ticker_data.num_shares }}</td>
-                    <td>{{ ticker_data.total_return }}</td>
-                    <td>{{ ticker_data.net_gainloss }}</td>
-                    <td>{{ ticker_data.curr_price }}</td>
-                    <td>{{ ticker_data.high_52 }}</td>
-                    <td>{{ ticker_data.low_52 }}</td>
-                    <td>{{ ticker_data.asset_type }}</td>
-                </tr>
-                {% endfor %}
+            <tbody id="detailTable">
+
             </tbody>
         </table>
+    </div>
 
-        <!--
-        <div class="container">
-            <table id="price-table" class="table">
-                <thead>
-                    <tr>
-                        <th>Ticker</th>
-                        <th>Price</th>
-                    </tr>
-                </thead>
-                <tbody>
-
-                </tbody>
-            </table>
+    <br>
+    <h4>Asset Type Breakdown</h4>
+    <p>
+        The asset type breakdown is calculated relative to the number of shares for each asset type, rather than the
+        ticker.
+    </p>
+    <div class="container">
+        <div class="chart-container">
+            <canvas id="assetTypeChart"></canvas>
         </div>
-        <h4>Profit</h4>
-        <div class="container">
-            <table id="ticker-table-profit" class="table">
-                <thead>
-                    <tr>
-                        <th>Ticker</th>
-                        <th>Return</th>
-                    </tr>
-                </thead>
-                <tbody>
+    </div>
 
-                </tbody>
-            </table>
-        </div>
-        <h4>Loss</h4>
-        <div class="container">
-            <table id="ticker-table-loss" class="table">
-                <thead>
-                    <tr>
-                        <th>Ticker</th>
-                        <th>Return</th>
-                    </tr>
-                </thead>
-                <tbody>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var ctx = document.getElementById('assetTypeChart').getContext('2d');
 
-                </tbody>
-            </table>
-        </div>
-        -->
+            fetch('/assets_breakdown')
+                .then(response => response.json())
+                .then(assetTypeData => {
+                    var data = {
+                        labels: Object.keys(assetTypeData),
+                        datasets: [{
+                            data: Object.values(assetTypeData),
+                            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56']
+                        }]
+                    };
 
-        <h4>Asset Type Breakdown</h4>
-        <p>The asset type breakdown is calculated relative to the number of shares for each asset type, rather than the ticker.</p>
-        <div class="container">
-            <div class="chart-container">
-                <canvas id="assetTypeChart"></canvas>
-            </div>
-        </div>
+                    // Create the pie chart
+                    var myPieChart = new Chart(ctx, {
+                        type: 'pie',
+                        data: data
+                    });
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        });
+    </script>
 
-        <!-- <h4>Gain/Loss</h4> -->
+    <script>
+        function updateDropdownValue(item) {
+            document.getElementById("dropdownMenu").innerHTML = item.innerHTML;
+        }
 
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                var ctx = document.getElementById('assetTypeChart').getContext('2d');
+        function loadDetail() {
+            const id = document.getElementById("dropdownMenu").innerText;
+            console.log("ticker_id: " + id)
+            if (id == "Select Ticker ") {
+                window.alert("Select a ticker to view detail")
+                return
+            }
+            // const url = window.location.hostname + "/detail/" + document.getElementById("dropdownMenu").innerHTML;
+            // window.location.href = url;
+            fetch("/ticker_data/" + id)
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data)
+                    const tickerDetailHeader = document.getElementById("detailTableHeader");
+                    tickerDetailHeader.innerHTML = ` 
+                        <tr>
+                            <th>Date</th>
+                            <th>Open</th>
+                            <th>Low</th>
+                            <th>Close</th>
+                            <th>High</th>
+                            <th>Volume</th>
+                        </tr>
+                    `
+                    const tickerDetailTable = document.getElementById("detailTable");
+                    tickerDetailTable.innerHTML = `` // Clean table body after refresh
+                    if (Object.keys(data).length === 0) {
+                        const row = document.createElement("tr");
+                        row.innerHTML = `<td colspan="8">No data available</td>`;
+                        tickerDetailTable.appendChild(row);
+                    } else {
+                        for (const index in data) {
+                            const detail = data[index];
+                            const row = document.createElement("tr");
+                            row.innerHTML = `
+                            <td>${detail[6]}</td>
+                            <td>${detail[1]}</td>
+                            <td>${detail[2]}</td>
+                            <td>${detail[3]}</td>
+                            <td>${detail[4]}</td>
+                            <td>${detail[5]}</td>
+                            `
+                            tickerDetailTable.appendChild(row);
+                        }
+                    }
 
-                var assetTypeData = {
-                    {% for asset_type, percentage in asset_type_data.items() %}
-                        "{{ asset_type }}": {{ percentage }},
-                    {% endfor %}
-                };
-
-                var data = {
-                    labels: Object.keys(assetTypeData),
-                    datasets: [{
-                        data: Object.values(assetTypeData),
-                        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56']
-                    }]
-                };
-
-                // Create the pie chart
-                var myPieChart = new Chart(ctx, {
-                    type: 'pie',
-                    data: data
+                })
+                .catch(error => {
+                    console.error("Error fetching data:", error);
                 });
-            });
-        </script>
-    </body>
+        }
+    </script>
 
+    <script>
+        document.getElementById("fetch-data-button").addEventListener("click", fetchYFinanceData);
+
+        function fetchYFinanceData() {
+            fetch("/create_portfolio_table")
+                .then(response => response.json())
+                .then(data => {
+                    // Data is fetched successfully, update the table
+                    const portfolioBody = document.getElementById("portfolio-body");
+                    portfolioBody.innerHTML = ""; // Clear existing rows
+
+                    if (Object.keys(data).length === 0) {
+                        const row = document.createElement("tr");
+                        row.innerHTML = `<td colspan="8">No data available</td>`;
+                        portfolioBody.appendChild(row);
+                    } else {
+                        for (const ticker_id in data) {
+                            const row_data = data[ticker_id];
+                            const row = document.createElement("tr");
+                            row.innerHTML = `
+                                    <td>${ticker_id}</td>
+                                    <td>${row_data.name}</td>
+                                    <td>${row_data.num_shares}</td>
+                                    <td>${row_data.market_value}</td>
+                                    <td>${row_data.high_52}</td>
+                                    <td>${row_data.low_52}</td>
+                                    <td>${row_data.asset_type}</td>
+                                `;
+                            portfolioBody.appendChild(row);
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error("Error fetching data:", error);
+                });
+        }
+
+        // fetch Yahoo Finance data when the page loads
+        document.addEventListener("DOMContentLoaded", fetchYFinanceData);
+    </script>
 </div>
 {% endblock %}
