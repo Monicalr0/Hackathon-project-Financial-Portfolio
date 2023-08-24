@@ -1,4 +1,4 @@
-# Portfolio Dashboard & Asset Manager
+# Portfolio Dashboard and Asset Manager
 
 <!-- add a centered image -->
 <p align="center">
@@ -7,7 +7,7 @@
 
 ## 📝 Table of Contents
 
-- [Portfolio Dashboard \& Asset Manager](#portfolio-dashboard--asset-manager)
+- [Portfolio Dashboard and Asset Manager](#portfolio-dashboard-and-asset-manager)
   - [📝 Table of Contents](#-table-of-contents)
   - [🧐 Project Description ](#-project-description-)
   - [⚙️ Installation](#️-installation)
