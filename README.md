@@ -7,17 +7,17 @@
 
 ## 📝 Table of Contents
 
--   [Portfolio Dashboard \& Asset Manager](#portfolio-dashboard--asset-manager)
-    -   [📝 Table of Contents](#-table-of-contents)
-    -   [🧐 Project Description ](#-project-description-)
-    -   [⚙️ Installation](#️-installation)
-    -   [📊 Usage ](#-usage-)
-    -   [⛏️ Built With ](#️-built-with-)
-    -   [🪫 Current Limitations ](#-current-limitations-)
-    -   [🚀 Future Scope ](#-future-scope-)
-    -   [✍️ Authors ](#️-authors-)
-    -   [📸 Demo Images ](#-demo-images-)
-    -   [📃 License](#-license)
+- [Portfolio Dashboard \& Asset Manager](#portfolio-dashboard--asset-manager)
+  - [📝 Table of Contents](#-table-of-contents)
+  - [🧐 Project Description ](#-project-description-)
+  - [⚙️ Installation](#️-installation)
+  - [📊 Usage ](#-usage-)
+  - [⛏️ Built With ](#️-built-with-)
+  - [🪫 Current Limitations ](#-current-limitations-)
+  - [🚀 Future Scope ](#-future-scope-)
+  - [✍️ Authors ](#️-authors-)
+  - [📸 Demo Images ](#-demo-images-)
+  - [📃 License](#-license)
 
 ## 🧐 Project Description <a name = "description"></a>
 
@@ -107,9 +107,9 @@ In the future, we hope to address the current limitations in our minimum viable 
 
 ## 📸 Demo Images <a name = "demo"></a>
 
-![Image showing the homepage.](images/home_demo.png 'Homepage')
+![Image showing the homepage.](flask_app/static/images/home_demo.png 'Homepage')
 
-![Image showing the transactions page.](images/transactions_demo.png 'Transactions')
+![Image showing the transactions page.](flask_app/static/images/transactions_demo.png 'Transactions')
 
 ## 📃 License
 
