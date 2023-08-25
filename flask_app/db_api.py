@@ -298,6 +298,8 @@ class DatabaseEditor:
         num_shares = int(num_shares)
 
         buy_in_price = self.get_market_value(ticker_id, timestamp)
+        portfolio_tickers = [t.upper() for t in self.get_tickers()]
+        ticker_id = ticker_id.upper()
 
         if buy_in_price is None:
             msg = f"Unable to determine the market value of {ticker_id.upper()} at {timestamp}."
@@ -311,7 +313,7 @@ class DatabaseEditor:
 
             return msg  # fail
 
-        elif ticker_id in self.get_tickers():
+        elif ticker_id in portfolio_tickers:
             logging.info(
                 f"{ticker_id.upper()} already exists in the database, updating current portfolio info for purchase."
             )
@@ -415,16 +417,16 @@ class DatabaseEditor:
         """
         sale_price = self.get_market_value(ticker_id, timestamp)
         num_shares = int(num_shares)
+        portfolio_tickers = [t.upper() for t in self.get_tickers()]
+        ticker_id = ticker_id.upper()
 
         if sale_price is None:
             msg = f"Unable to determine the market value of {ticker_id.upper()} at {timestamp}."
             logging.warning(msg)
             return msg
-
         if not self.is_valid_ticker(ticker_id):
             msg = f"{ticker_id.upper()} is not a valid Yahoo! Finance ticker."
             logging.warning(msg)
-
             return msg
         elif ticker_id not in self.get_tickers():
             msg = f"{ticker_id.upper()} is not in the user portfolio, there are no shares to sell."
