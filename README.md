@@ -107,13 +107,16 @@ In the future, we hope to address the current limitations in our minimum viable 
 
 ## 📸 Demo <a name = "demo"></a>
 
-<!-- ![Image showing the homepage.](flask_app/static/images/home_demo.png 'Homepage')
+![Image showing the homepage.](flask_app/static/images/assets_table.png 'Homepage')
+![Image showing the interactive charts.](flask_app/static/images/charts.png 'Charts')
+![Image showing the asset breakdown pie chart.](flask_app/static/images/assets_pie.png 'Pie Chart')
+![Image showing the transactions page.](flask_app/static/images/transactions.png 'Transactions')
 
-![Image showing the transactions page.](flask_app/static/images/transactions_demo.png 'Transactions') -->
-
-<video width="auto" height="auto" controls>
+<!-- <video width="auto" height="auto" controls>
   <source src="flask_app/static/images/demo.mov" type="video/mp4">
-</video>
+</video> -->
+
+![Video showing the webapp in action.](flask_app/static/images/demo.mov 'Demo')
 
 ## 📃 License
 
