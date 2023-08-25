@@ -47,7 +47,7 @@ Our underlying database schema is shown below:
 <!-- <video width="auto" height="auto" controls>
   <source src="flask_app/static/images/demo.mov" type="video/mp4">
 </video> -->
-
+The demo video below will play automatically.
 ![Video showing the webapp in action.](flask_app/static/images/demo.mov 'Demo')
 
 ## ⚙️ Installation
