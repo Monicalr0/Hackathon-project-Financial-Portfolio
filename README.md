@@ -10,13 +10,13 @@
 - [Portfolio Dashboard and Asset Manager](#portfolio-dashboard-and-asset-manager)
   - [📝 Table of Contents](#-table-of-contents)
   - [🧐 Project Description ](#-project-description-)
+  - [📸 Demo ](#-demo-)
   - [⚙️ Installation](#️-installation)
   - [📊 Usage ](#-usage-)
   - [⛏️ Built With ](#️-built-with-)
   - [🪫 Current Limitations ](#-current-limitations-)
   - [🚀 Future Scope ](#-future-scope-)
   - [✍️ Authors ](#️-authors-)
-  - [📸 Demo ](#-demo-)
   - [📃 License](#-license)
 
 ## 🧐 Project Description <a name = "description"></a>
@@ -36,6 +36,19 @@ Data from the webapp can also be accessed manually through a variety of API endp
 Our underlying database schema is shown below:
 
 ![Image showing the database structure.](flask_app/static/images/schema.png 'Database Structure')
+
+## 📸 Demo <a name = "demo"></a>
+
+<!-- ![Image showing the homepage.](flask_app/static/images/assets_table.png 'Homepage')
+![Image showing the interactive charts.](flask_app/static/images/charts.png 'Charts')
+![Image showing the asset breakdown pie chart.](flask_app/static/images/assets_pie.png 'Pie Chart')
+![Image showing the transactions page.](flask_app/static/images/transactions.png 'Transactions') -->
+
+<!-- <video width="auto" height="auto" controls>
+  <source src="flask_app/static/images/demo.mov" type="video/mp4">
+</video> -->
+
+![Video showing the webapp in action.](flask_app/static/images/demo.mov 'Demo')
 
 ## ⚙️ Installation
 
@@ -104,19 +117,6 @@ In the future, we hope to address the current limitations in our minimum viable 
     -   Resident expert on what "stocks" and "investments" actually are.
     -   Guided schema design and data retrieval.
     -   Led code documentation and wrote the `about.html` page.
-
-## 📸 Demo <a name = "demo"></a>
-
-![Image showing the homepage.](flask_app/static/images/assets_table.png 'Homepage')
-![Image showing the interactive charts.](flask_app/static/images/charts.png 'Charts')
-![Image showing the asset breakdown pie chart.](flask_app/static/images/assets_pie.png 'Pie Chart')
-![Image showing the transactions page.](flask_app/static/images/transactions.png 'Transactions')
-
-<!-- <video width="auto" height="auto" controls>
-  <source src="flask_app/static/images/demo.mov" type="video/mp4">
-</video> -->
-
-![Video showing the webapp in action.](flask_app/static/images/demo.mov 'Demo')
 
 ## 📃 License
 
