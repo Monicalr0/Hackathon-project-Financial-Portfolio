@@ -16,7 +16,7 @@
   - [🪫 Current Limitations ](#-current-limitations-)
   - [🚀 Future Scope ](#-future-scope-)
   - [✍️ Authors ](#️-authors-)
-  - [📸 Demo Images ](#-demo-images-)
+  - [📸 Demo ](#-demo-)
   - [📃 License](#-license)
 
 ## 🧐 Project Description <a name = "description"></a>
@@ -105,11 +105,15 @@ In the future, we hope to address the current limitations in our minimum viable 
     -   Guided schema design and data retrieval.
     -   Led code documentation and wrote the `about.html` page.
 
-## 📸 Demo Images <a name = "demo"></a>
+## 📸 Demo <a name = "demo"></a>
 
-![Image showing the homepage.](flask_app/static/images/home_demo.png 'Homepage')
+<!-- ![Image showing the homepage.](flask_app/static/images/home_demo.png 'Homepage')
 
-![Image showing the transactions page.](flask_app/static/images/transactions_demo.png 'Transactions')
+![Image showing the transactions page.](flask_app/static/images/transactions_demo.png 'Transactions') -->
+
+<video width="auto" height="auto" controls>
+  <source src="flask_app/static/images/demo.mov" type="video/mp4">
+</video>
 
 ## 📃 License
 

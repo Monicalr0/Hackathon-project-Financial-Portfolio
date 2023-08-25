@@ -12,7 +12,7 @@ from flask import jsonify
 load_dotenv()
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 
-logging.basicConfig(level=logging.WARNING)
+logging.basicConfig(level=logging.DEBUG)
 
 
 # class to access and edit the database
@@ -178,6 +178,8 @@ class DatabaseEditor:
                     data = yf.download(ticker_id, period="1d")
                     return data["Close"][0]
             else:
+                # convert to datetime
+                timestamp = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
                 try:
                     data = ticker.history(
                         start=timestamp - timedelta(hours=12), end=timestamp
@@ -190,16 +192,30 @@ class DatabaseEditor:
                     return None
 
     def calc_profit(self, ticker_id: str, timestamp: datetime = None):
+        if timestamp is None:
+            timestamp = datetime.now()
+        else: 
+            # convert from str to datetime
+            try:
+                timestamp = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
+            except:
+                pass
+
         # remove the hms from the timestamp
         timestamp = timestamp.replace(hour=0, minute=0, second=0)
         # format as yyyy-mm-dd hh:mm:ss
         timestamp = timestamp.strftime("%Y-%m-%d %H:%M:%S")
 
-        # get the closing price of the ticker at the timestamp
-        self.cursor.execute(
-            f"SELECT close FROM ticker_data WHERE ticker_id = '{ticker_id}' AND date = '{timestamp}';"
-        )
-        close = self.cursor.fetchone()[0]
+        try:
+            # get the closing price of the ticker at the timestamp
+            self.cursor.execute(
+                f"SELECT close FROM ticker_data WHERE ticker_id = '{ticker_id}' AND date = '{timestamp}';"
+            )
+            close = self.cursor.fetchone()[0]
+        except:
+            close = self.get_market_value(ticker_id, timestamp)
+        finally:
+            logging.warning(f"Unable to get closing price for {ticker_id.upper()} at {timestamp} while calculating profit.")
 
         # get the history of the ticker up to the timestamp
         self.cursor.execute(
@@ -221,8 +237,10 @@ class DatabaseEditor:
                 total_investment += num_shares * price
 
         # calc the current value of the shares held
-        current_value = total_shares_held * close
+        current_value = float(total_shares_held * close)
 
+        total_investment = float(total_investment)
+        
         # calc the abs profit
         absolute_profit = current_value - total_investment
 
@@ -280,6 +298,8 @@ class DatabaseEditor:
         num_shares = int(num_shares)
 
         buy_in_price = self.get_market_value(ticker_id, timestamp)
+        portfolio_tickers = [t.upper() for t in self.get_tickers()]
+        ticker_id = ticker_id.upper()
 
         if buy_in_price is None:
             msg = f"Unable to determine the market value of {ticker_id.upper()} at {timestamp}."
@@ -293,7 +313,7 @@ class DatabaseEditor:
 
             return msg  # fail
 
-        elif ticker_id in self.get_tickers():
+        elif ticker_id in portfolio_tickers:
             logging.info(
                 f"{ticker_id.upper()} already exists in the database, updating current portfolio info for purchase."
             )
@@ -397,16 +417,16 @@ class DatabaseEditor:
         """
         sale_price = self.get_market_value(ticker_id, timestamp)
         num_shares = int(num_shares)
+        portfolio_tickers = [t.upper() for t in self.get_tickers()]
+        ticker_id = ticker_id.upper()
 
         if sale_price is None:
             msg = f"Unable to determine the market value of {ticker_id.upper()} at {timestamp}."
             logging.warning(msg)
             return msg
-
         if not self.is_valid_ticker(ticker_id):
             msg = f"{ticker_id.upper()} is not a valid Yahoo! Finance ticker."
             logging.warning(msg)
-
             return msg
         elif ticker_id not in self.get_tickers():
             msg = f"{ticker_id.upper()} is not in the user portfolio, there are no shares to sell."
