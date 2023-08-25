@@ -22,8 +22,8 @@
                 <th>Ticker</th>
                 <th>Short Name</th>
                 <th>Shares</th>
-                <!-- <th>Total Return (All Time)</th>
-                    <th>Net Gain/Loss</th> -->
+                <!-- <th>Total Return (All Time)</th> -->
+                <th>Net Gain/Loss %</th> 
                 <th>Market Value</th>
                 <th>52-week High</th>
                 <th>52-week Low</th>
@@ -249,6 +249,7 @@
                                     <td>${ticker_id}</td>
                                     <td>${row_data.name}</td>
                                     <td>${row_data.num_shares}</td>
+                                    <td>${row_data.net_gainloss}</td>
                                     <td>${row_data.market_value}</td>
                                     <td>${row_data.high_52}</td>
                                     <td>${row_data.low_52}</td>

@@ -12,7 +12,7 @@ from flask import jsonify
 load_dotenv()
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 
-logging.basicConfig(level=logging.WARNING)
+logging.basicConfig(level=logging.DEBUG)
 
 
 # class to access and edit the database
@@ -178,6 +178,8 @@ class DatabaseEditor:
                     data = yf.download(ticker_id, period="1d")
                     return data["Close"][0]
             else:
+                # convert to datetime
+                timestamp = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
                 try:
                     data = ticker.history(
                         start=timestamp - timedelta(hours=12), end=timestamp
@@ -190,16 +192,30 @@ class DatabaseEditor:
                     return None
 
     def calc_profit(self, ticker_id: str, timestamp: datetime = None):
+        if timestamp is None:
+            timestamp = datetime.now()
+        else: 
+            # convert from str to datetime
+            try:
+                timestamp = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
+            except:
+                pass
+
         # remove the hms from the timestamp
         timestamp = timestamp.replace(hour=0, minute=0, second=0)
         # format as yyyy-mm-dd hh:mm:ss
         timestamp = timestamp.strftime("%Y-%m-%d %H:%M:%S")
 
-        # get the closing price of the ticker at the timestamp
-        self.cursor.execute(
-            f"SELECT close FROM ticker_data WHERE ticker_id = '{ticker_id}' AND date = '{timestamp}';"
-        )
-        close = self.cursor.fetchone()[0]
+        try:
+            # get the closing price of the ticker at the timestamp
+            self.cursor.execute(
+                f"SELECT close FROM ticker_data WHERE ticker_id = '{ticker_id}' AND date = '{timestamp}';"
+            )
+            close = self.cursor.fetchone()[0]
+        except:
+            close = self.get_market_value(ticker_id, timestamp)
+        finally:
+            logging.warning(f"Unable to get closing price for {ticker_id.upper()} at {timestamp} while calculating profit.")
 
         # get the history of the ticker up to the timestamp
         self.cursor.execute(
@@ -221,8 +237,10 @@ class DatabaseEditor:
                 total_investment += num_shares * price
 
         # calc the current value of the shares held
-        current_value = total_shares_held * close
+        current_value = float(total_shares_held * close)
 
+        total_investment = float(total_investment)
+        
         # calc the abs profit
         absolute_profit = current_value - total_investment
 

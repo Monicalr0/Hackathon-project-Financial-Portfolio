@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 import logging
 import os
 
@@ -29,31 +30,32 @@ class CreatePortfolioTableItem(Resource):
     def get(self):
         table = {}
         for t_id in self.db_editor.get_tickers():
-            try:
-                market_value = self.db_editor.get_market_value(t_id)
-                num_shares = self.db_editor.get_num_shares(t_id)
-                asset_type = self.db_editor.get_asset_type(t_id)
-                # net_gainloss = self.db_editor.calc_gainloss(t_id)
-                # fetch yfinance data for a given ticker
-                ticker = yf.Ticker(t_id)
-                high_52 = ticker.info["fiftyTwoWeekHigh"]
-                low_52 = ticker.info["fiftyTwoWeekLow"]
-                name = ticker.info["shortName"]
+            # try:
+            market_value = self.db_editor.get_market_value(t_id)
+            num_shares = self.db_editor.get_num_shares(t_id)
+            asset_type = self.db_editor.get_asset_type(t_id)
+            net_gainloss = self.db_editor.calc_profit(t_id)[1]
+            
+            # fetch yfinance data for a given ticker
+            ticker = yf.Ticker(t_id)
+            high_52 = ticker.info["fiftyTwoWeekHigh"]
+            low_52 = ticker.info["fiftyTwoWeekLow"]
+            name = ticker.info["shortName"]
 
-                high_52 = f"{high_52:.2f}"
-                low_52 = f"{low_52:.2f}"
+            high_52 = f"{high_52:.2f}"
+            low_52 = f"{low_52:.2f}"
 
-                table[t_id] = {
-                    "market_value": f"{market_value:.2f}",
-                    "num_shares": num_shares,
-                    # "net_gainloss": net_gainloss,
-                    "high_52": high_52,
-                    "low_52": low_52,
-                    "name": name,
-                    "asset_type": asset_type,
-                }
-            except:
-                return {"error": f"Data for ticker {t_id} not found"}, 404
+            table[t_id] = {
+                "market_value": f"{market_value:.2f}",
+                "num_shares": num_shares,
+                "net_gainloss":  f"{net_gainloss:.2f}",
+                "high_52": high_52,
+                "low_52": low_52,
+                "name": name,
+                "asset_type": asset_type,
+            }
+            # except:
+            #     return {"error": f"Data for ticker {t_id} not found"}, 404
 
         # sort table by num_shares
         table = dict(
@@ -272,7 +274,10 @@ def home():
     )
 
     portfolio_data = db_editor.display_portfolio_yf()
+    
     # asset_type_data = db_editor.asset_type_breakdown()
+    for ticker in db_editor.get_tickers():
+        db_editor.backlog_ticker_data(ticker)
 
     # refresh db with yfinance data
     # db_editor.update_ticker_data()
